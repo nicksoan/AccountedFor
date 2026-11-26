@@ -38,7 +38,7 @@
     {
         <div class="box good">
             WELCOME BACK. THIS BROWSER HAS A SANDBOX FOR <span class="wh">@Model.Existing.OperatorId</span>
-            (@Model.Existing.Journals.Count JOURNALS, RANK <span class="ye">@Model.Existing.Rank</span>).
+            (@Model.Existing.Journals.Count @(Model.Existing.Journals.Count == 1 ? "JOURNAL" : "JOURNALS"), RANK <span class="ye">@Model.Existing.Rank</span>).
             PRESS ENTER TO RESUME IT.
         </div>
     }
