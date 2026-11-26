@@ -1,52 +1,100 @@
-﻿<!DOCTYPE html>
+@{
+    var company = ViewData["Company"] as Company;
+    var screenId = ViewData["ScreenId"] as string ?? "FID000";
+    var title = ViewData["Title"] as string ?? "";
+    var exit = ViewData["Exit"] as string ?? Navigation.MainMenu;
+    var help = ViewData["HelpTopic"] as string ?? "BASICS";
+    var error = ViewData["Error"] as string ?? TempData["Error"] as string;
+    var message = TempData["Message"] as string;
+    var levelUp = TempData["LevelUp"] as string;
+    var pfKeys = ViewData["PfKeys"] as IEnumerable<PfKey> ?? [];
+    var path = Context.Request.Path.Value;
+    var level = company?.CurrentLevel;
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - AccountedFor.Web</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <title>FIDOS @screenId - @title | Accounted For</title>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/AccountedFor.Web.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">AccountedFor.Web</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
+<div class="crt">
+    <div class="terminal">
+        <div class="row head">
+            <span><span class="hi">FIDOS</span> <span class="cy">@screenId</span></span>
+            <span class="title">@title</span>
+            <span id="clock" class="cy">@DateTime.Now.ToString("yyyy-MM-dd HH:mm")</span>
+        </div>
+        @if (company is not null)
+        {
+            <div class="row sub">
+                <span>CO: <span class="wh">@company.Name</span>  OPR: <span class="wh">@company.OperatorId</span></span>
+                <span>RANK: <span class="ye">@company.Rank</span>  SCORE: <span class="ye">@company.Score</span></span>
+                <span>@if (level is not null)
+                    {
+                        <a href="/Training/Level/@level.Number">LVL @level.Number: @level.Title</a>
+                    }
+                    else
+                    {
+                        <span class="ye">TRAINING COMPLETE</span>
+                    }</span>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+            <form method="get" action="/Command" class="row cmd" autocomplete="off">
+                <label for="cmd" class="cy">COMMAND ===&gt;</label>
+                <input id="cmd" name="cmd" class="fld cmdfld" maxlength="20" spellcheck="false" />
+                <input type="hidden" name="from" value="@path" />
+            </form>
+        }
+        <div class="rule"></div>
+        <main>
             @RenderBody()
         </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - AccountedFor.Web - <a asp-area="" asp-page="/Privacy">Privacy</a>
+        <div class="rule"></div>
+        <div class="row msg" role="status" aria-live="polite">
+            @if (!string.IsNullOrEmpty(levelUp))
+            {
+                <div class="levelup">@levelUp</div>
+            }
+            @if (!string.IsNullOrEmpty(error))
+            {
+                <div class="err">FID999E @error</div>
+            }
+            else if (!string.IsNullOrEmpty(message))
+            {
+                <div class="ok">@message</div>
+            }
+            else
+            {
+                <div class="dim">READY</div>
+            }
         </div>
-    </footer>
-
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-
-    @await RenderSectionAsync("Scripts", required: false)
+        <nav class="row pf">
+            <a data-pf="F1" href="/Help?topic=@help">F1=HELP</a>
+            @if (company is not null)
+            {
+                <a data-pf="F3" href="@exit">F3=EXIT</a>
+                @foreach (var key in pfKeys)
+                {
+                    <a data-pf="@key.Key" href="@key.Url">@key.Key=@key.Label</a>
+                }
+                <a data-pf="F12" href="@Navigation.MainMenu">F12=MAIN</a>
+            }
+            <span class="dim">ENTER=PROCESS</span>
+        </nav>
+    </div>
+</div>
+<datalist id="accounts">
+    @if (company is not null)
+    {
+        foreach (var a in company.Accounts)
+        {
+            <option value="@a.Code" label="@a.Name">@a.Name</option>
+        }
+    }
+</datalist>
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

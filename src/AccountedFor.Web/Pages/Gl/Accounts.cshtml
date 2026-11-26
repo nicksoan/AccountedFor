@@ -1,0 +1,33 @@
+@page
+@model AccountsModel
+@{
+    ViewData["ScreenId"] = "GL100";
+    ViewData["Title"] = "CHART OF ACCOUNTS";
+    ViewData["Exit"] = "/Menu/GL";
+    ViewData["HelpTopic"] = "COA";
+    ViewData["PfKeys"] = new[] { new PfKey("F6", "NEW ACCOUNT", "/Gl/NewAccount"), new PfKey("F7", "TRIAL BAL", "/Reports/TrialBalance") };
+}
+<p class="cy">SELECT AN ACCOUNT CODE TO SEE ITS T-ACCOUNT. <span class="dim">* = CONTROL ACCOUNT (SUB-LEDGER ONLY)  + = CREATED BY YOU</span></p>
+<table class="grid">
+    <thead>
+        <tr><th>CODE</th><th>ACCOUNT NAME</th><th>TYPE</th><th>NORMAL</th><th class="n">DEBIT BAL</th><th class="n">CREDIT BAL</th></tr>
+    </thead>
+    <tbody>
+    @foreach (var group in Model.Company.Accounts.GroupBy(a => a.Type))
+    {
+        <tr><td colspan="6" class="ye">@group.Key.ToString().ToUpperInvariant() ACCOUNTS (@group.Key.CodeRange())</td></tr>
+        foreach (var a in group)
+        {
+            var bal = Model.Company.Balance(a.Code);
+            <tr>
+                <td><a href="/Gl/Inquiry?code=@a.Code">@a.Code</a></td>
+                <td>@a.Name@(a.Control != ControlType.None ? " *" : "")@(a.IsUserDefined ? " +" : "")</td>
+                <td>@a.Type.ShortCode()</td>
+                <td>@(a.NormalBalance == NormalBalance.Debit ? "DR" : "CR")</td>
+                <td class="n">@(bal > 0 ? Fmt.Amt(bal) : "")</td>
+                <td class="n">@(bal < 0 ? Fmt.Amt(-bal) : "")</td>
+            </tr>
+        }
+    }
+    </tbody>
+</table>

@@ -1,0 +1,30 @@
+@page
+@model IndexModel
+@{
+    ViewData["ScreenId"] = "TR100";
+    ViewData["Title"] = "ACCOUNTED FOR - TRAINING LEVELS";
+    ViewData["Exit"] = "/Menu/TRN";
+    ViewData["HelpTopic"] = "LEVELS";
+    ViewData["PfKeys"] = new[] { new PfKey("F6", "DRILL", "/Training/Drill") };
+    var c = Model.Company;
+}
+<p>OPERATOR <span class="wh">@c.OperatorId</span>  RANK <span class="ye">@c.Rank</span>  SCORE <span class="ye">@c.Score</span>
+    LEVELS <span class="wh">@c.CompletedLevels.Count/@LevelCatalog.All.Count</span>  DRILL <span class="wh">@c.Drill.Correct/@c.Drill.Attempts</span> (BEST STREAK @c.Drill.BestStreak)</p>
+<table class="grid">
+    <thead><tr><th>LVL</th><th>MISSION</th><th>CONCEPT</th><th class="n">PTS</th><th>STATUS</th></tr></thead>
+    <tbody>
+    @foreach (var l in LevelCatalog.All)
+    {
+        var done = c.IsLevelComplete(l.Number);
+        var open = c.IsLevelUnlocked(l.Number);
+        <tr>
+            <td>@l.Number.ToString("00")</td>
+            <td>@if (open) { <a href="/Training/Level/@l.Number">@l.Title</a> } else { <span class="dim">@l.Title</span> }</td>
+            <td class="@(open ? "" : "dim")">@l.Concept</td>
+            <td class="n">@l.Points</td>
+            <td>@if (done) { <span class="tag done">COMPLETE</span> } else if (open) { <span class="tag open">IN PROGRESS</span> } else { <span class="tag lock">LOCKED</span> }</td>
+        </tr>
+    }
+    </tbody>
+</table>
+<p class="dim">LEVELS ARE OPTIONAL AND UNLOCK IN ORDER. OBJECTIVES ARE CHECKED AGAINST YOUR REAL FIDOS BOOKS EVERY TIME YOU POST.</p>

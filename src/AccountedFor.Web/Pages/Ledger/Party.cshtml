@@ -1,0 +1,49 @@
+@page "/{ledger:regex(^(ar|ap)$)}/parties/{id}"
+@model PartyModel
+@{
+    var k = Model.Kind;
+    var p = Model.Party;
+    ViewData["ScreenId"] = $"{k.Code}110";
+    ViewData["Title"] = $"{k.Party} STATEMENT";
+    ViewData["Exit"] = k.Url("parties");
+    ViewData["PfKeys"] = new[] { new PfKey("F6", k.InvoiceTitle, k.Url("invoice") + "?party=" + p.Id), new PfKey("F7", k.Settlement, k.Url("settle") + "?party=" + p.Id) };
+}
+<table class="form">
+    <tr><td class="lbl">@k.Party<span class="dots"></span></td><td class="wh">@p.Id @p.Name</td></tr>
+    <tr><td class="lbl">CONTACT<span class="dots"></span></td><td>@p.Contact</td></tr>
+    <tr><td class="lbl">TERMS<span class="dots"></span></td><td>@p.TermsDays DAYS</td></tr>
+    <tr><td class="lbl">BALANCE<span class="dots"></span></td><td class="ye">@Fmt.Amt(p.Balance) @(k.IsReceivables ? "OWED TO NORTHSEA" : "OWED BY NORTHSEA")</td></tr>
+</table>
+<h2>STATEMENT OF ACCOUNT</h2>
+@if (Model.Rows.Count == 0)
+{
+    <div class="box">NO TRANSACTIONS YET.</div>
+}
+else
+{
+    <table class="grid">
+        <thead><tr><th>DATE</th><th>DOCUMENT</th><th>DESCRIPTION</th><th class="n">@(k.IsReceivables ? "INVOICED" : "PAID")</th><th class="n">@(k.IsReceivables ? "RECEIVED" : "INVOICED")</th><th class="n">BALANCE</th></tr></thead>
+        <tbody>
+        @foreach (var r in Model.Rows)
+        {
+            <tr><td>@Fmt.Date(r.Date)</td><td>@r.Document</td><td>@r.Description</td><td class="n">@Fmt.AmtOrBlank(r.Debit)</td><td class="n">@Fmt.AmtOrBlank(r.Credit)</td><td class="n">@Fmt.Amt(r.Balance)</td></tr>
+        }
+        </tbody>
+    </table>
+}
+@{ var open = k.Invoices(Model.Company).Where(i => i.PartyId == p.Id && !i.IsPaid).ToList(); }
+@if (open.Count > 0)
+{
+    <h2>OPEN INVOICES</h2>
+    <table class="grid">
+        <thead><tr><th>INVOICE</th><th>DATE</th><th>DUE</th><th class="n">GROSS</th><th class="n">OUTSTANDING</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var i in open)
+        {
+            <tr><td>@i.Number</td><td>@Fmt.Date(i.Date)</td><td class="@(i.DueDate < TerminalPageModel.Today ? "rd" : "")">@Fmt.Date(i.DueDate)</td>
+                <td class="n">@Fmt.Amt(i.Gross)</td><td class="n">@Fmt.Amt(i.Outstanding)</td>
+                <td><a href="@k.Url("settle")?party=@p.Id&amp;invoice=@i.Number">@k.Settlement</a></td></tr>
+        }
+        </tbody>
+    </table>
+}

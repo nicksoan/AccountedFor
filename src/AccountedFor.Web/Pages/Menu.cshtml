@@ -1,0 +1,41 @@
+@page "/Menu/{id?}"
+@model MenuModel
+@{
+    var menu = Model.Menu;
+    ViewData["ScreenId"] = menu.ScreenId;
+    ViewData["Title"] = menu.Title;
+    ViewData["Exit"] = menu.Id == "MAIN" ? "/Logoff" : menu.Parent;
+    ViewData["HelpTopic"] = "NAV";
+}
+<p class="cy">SELECT AN OPTION NUMBER OR TRANSACTION CODE ON THE COMMAND LINE, OR CLICK AN OPTION.</p>
+<table class="menu">
+    <tbody>
+    @foreach (var o in menu.Options)
+    {
+        <tr>
+            <td class="key"><a href="@o.Url">@o.Key</a></td>
+            <td class="code">@o.Code</td>
+            <td><a href="@o.Url">@o.Label</a></td>
+            <td class="desc">@o.Description</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@if (menu.Id == "MAIN")
+{
+    var level = Model.Company.CurrentLevel;
+    <div class="box @(level is null ? "good" : "warn")">
+        @if (level is null)
+        {
+            <p class="ye">ACCOUNTED FOR: ALL @LevelCatalog.All.Count LEVELS COMPLETE. YOU ARE A @Model.Company.Rank!</p>
+            <p>KEEP USING FIDOS IN FREE PLAY - TRY A SECOND YEAR OF TRADING.</p>
+        }
+        else
+        {
+            <p>ACCOUNTED FOR - NEXT MISSION: <a href="/Training/Level/@level.Number" class="ye">LEVEL @level.Number: @level.Title</a> (@level.Concept)</p>
+            <p class="dim">LEVELS ARE OPTIONAL. YOU CAN EXPLORE ANY FIDOS SCREEN FREELY AT ANY TIME.</p>
+        }
+    </div>
+    <p class="dim">TIP: JUMP STRAIGHT TO A SCREEN WITH ITS CODE (E.G. JE, SINV, TB) OR A PATH LIKE =1.3</p>
+}

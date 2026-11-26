@@ -1,0 +1,27 @@
+@page
+@model SystemModel
+@{
+    ViewData["ScreenId"] = "FID900";
+    ViewData["Title"] = "SANDBOX UTILITIES";
+    ViewData["HelpTopic"] = "NAV";
+    var c = Model.Company;
+}
+<table class="form">
+    <tr><td class="lbl">SANDBOX ID<span class="dots"></span></td><td class="ye">@Model.SandboxId</td></tr>
+    <tr><td class="lbl">OPERATOR<span class="dots"></span></td><td>@c.OperatorId</td></tr>
+    <tr><td class="lbl">COMPANY<span class="dots"></span></td><td>@c.Name</td></tr>
+    <tr><td class="lbl">CREATED (UTC)<span class="dots"></span></td><td>@c.CreatedUtc.ToString("yyyy-MM-dd HH:mm")</td></tr>
+    <tr><td class="lbl">LEDGER ACCOUNTS<span class="dots"></span></td><td>@c.Accounts.Count</td></tr>
+    <tr><td class="lbl">JOURNALS POSTED<span class="dots"></span></td><td>@c.Journals.Count</td></tr>
+    <tr><td class="lbl">CUSTOMERS / SUPPLIERS<span class="dots"></span></td><td>@c.Customers.Count / @c.Suppliers.Count</td></tr>
+    <tr><td class="lbl">LEVELS COMPLETED<span class="dots"></span></td><td>@c.CompletedLevels.Count / @LevelCatalog.All.Count</td></tr>
+</table>
+<p class="dim">KEEP YOUR SANDBOX ID PRIVATE - ANYONE WITH IT CAN OPEN YOUR TRAINING BOOKS.</p>
+
+<h2>RESET SANDBOX</h2>
+<p>WIPES EVERY POSTING, CUSTOMER, SUPPLIER AND LEVEL. THE CHART OF ACCOUNTS RETURNS TO THE STANDARD FIDOS CHART.</p>
+<form method="post" autocomplete="off">
+    <label for="confirm" class="cy">TYPE RESET TO CONFIRM ===&gt;</label>
+    <input id="confirm" class="fld w10" asp-for="Confirm" maxlength="5" autofocus />
+    <div class="actions"><button type="submit" class="btn danger">ENTER=RESET SANDBOX</button></div>
+</form>

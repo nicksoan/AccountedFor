@@ -1,0 +1,27 @@
+@page
+@model ReconcileModel
+@{
+    ViewData["ScreenId"] = "RP400";
+    ViewData["Title"] = "CONTROL ACCOUNT RECONCILIATION";
+    ViewData["Exit"] = "/Menu/RPT";
+    ViewData["HelpTopic"] = "RECON";
+}
+<p class="cy">EACH SUB-LEDGER (THE DETAIL) MUST AGREE TO ITS CONTROL ACCOUNT IN THE GENERAL LEDGER (THE SUMMARY).</p>
+<table class="grid">
+    <thead><tr><th>SUB-LEDGER</th><th>CONTROL ACCOUNT</th><th class="n">GL CONTROL BAL</th><th class="n">SUB-LEDGER TOTAL</th><th class="n">DIFFERENCE</th><th>STATUS</th></tr></thead>
+    <tbody>
+    @foreach (var r in Model.Rows)
+    {
+        <tr>
+            <td>@r.Ledger</td>
+            <td><a href="/Gl/Inquiry?code=@r.ControlAccount.Code">@r.ControlAccount.Code</a> @r.ControlAccount.Name</td>
+            <td class="n">@Fmt.Amt(r.ControlBalance)</td>
+            <td class="n">@Fmt.Amt(r.SubLedgerBalance)</td>
+            <td class="n">@Fmt.Amt(r.Difference)</td>
+            <td class="@(r.Agrees ? "good" : "rd")">@(r.Agrees ? "AGREED" : "DIFFERENCE")</td>
+        </tr>
+    }
+    </tbody>
+</table>
+<p class="dim">RECEIVABLES IS A DEBIT BALANCE (OWED TO US); PAYABLES IS A CREDIT BALANCE (WE OWE), SHOWN HERE AS A POSITIVE AMOUNT.</p>
+<p>DRILL DOWN: <a href="/ar/parties">CUSTOMER BALANCES</a>  <a href="/ap/parties">SUPPLIER BALANCES</a></p>

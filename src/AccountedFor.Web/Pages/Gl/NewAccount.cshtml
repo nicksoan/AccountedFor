@@ -1,0 +1,43 @@
+@page
+@model NewAccountModel
+@{
+    ViewData["ScreenId"] = "GL200";
+    ViewData["Title"] = "CREATE LEDGER ACCOUNT";
+    ViewData["Exit"] = "/Menu/GL";
+    ViewData["HelpTopic"] = "COA";
+    ViewData["PfKeys"] = new[] { new PfKey("F5", "CHART", "/Gl/Accounts") };
+}
+<p class="cy">ADD A NEW ACCOUNT TO NORTHSEA'S GENERAL LEDGER. THE FIRST DIGIT OF THE CODE MUST MATCH THE TYPE.</p>
+<form method="post" autocomplete="off">
+    <table class="form">
+        <tr>
+            <td class="lbl"><label for="code">ACCOUNT CODE</label><span class="dots"></span></td>
+            <td><input id="code" class="fld w4" asp-for="Code" maxlength="4" inputmode="numeric" /> <span class="dim">4 DIGITS</span></td>
+        </tr>
+        <tr>
+            <td class="lbl"><label for="name">ACCOUNT NAME</label><span class="dots"></span></td>
+            <td><input id="name" class="fld w30" asp-for="Name" maxlength="40" /></td>
+        </tr>
+        <tr>
+            <td class="lbl"><label for="type">ACCOUNT TYPE</label><span class="dots"></span></td>
+            <td>
+                <select id="type" class="fld" asp-for="Type">
+                    @foreach (var t in Enum.GetValues<AccountType>())
+                    {
+                        <option value="@t">@t.ShortCode() - @t.ToString().ToUpperInvariant() (@t.CodeRange())</option>
+                    }
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td class="lbl"><label for="desc">DESCRIPTION</label><span class="dots"></span></td>
+            <td><input id="desc" class="fld w40" asp-for="Description" maxlength="40" /> <span class="dim">OPTIONAL</span></td>
+        </tr>
+    </table>
+    <div class="actions"><button type="submit" class="btn">ENTER=CREATE ACCOUNT</button></div>
+</form>
+<div class="box">
+    <p class="ye">WHICH TYPE?</p>
+    <p>ASSET - SOMETHING NORTHSEA OWNS OR IS OWED (VAN, STOCK, PREPAID RENT).  LIABILITY - SOMETHING IT OWES (LOAN, TAX).</p>
+    <p>EQUITY - THE OWNER'S STAKE.  REVENUE - INCOME EARNED.  EXPENSE - COSTS CONSUMED IN EARNING IT (MARKETING, POSTAGE).</p>
+</div>

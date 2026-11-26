@@ -1,0 +1,34 @@
+@page "/{ledger:regex(^(ar|ap)$)}/parties"
+@model PartiesModel
+@{
+    var k = Model.Kind;
+    ViewData["ScreenId"] = $"{k.Code}100";
+    ViewData["Title"] = $"{k.Party} LIST - {k.LedgerName}";
+    ViewData["PfKeys"] = new[] { new PfKey("F6", "NEW " + k.Party, k.Url("parties/new")), new PfKey("F7", k.InvoiceTitle, k.Url("invoice")) };
+    var parties = k.PartyList(Model.Company);
+}
+<p class="cy">THE @k.LedgerName HOLDS ONE ACCOUNT PER @k.Party. ITS TOTAL MUST EQUAL CONTROL ACCOUNT @k.ControlAccount.</p>
+@if (parties.Count == 0)
+{
+    <div class="box">NO @k.Parties YET. PRESS F6 TO OPEN ONE.</div>
+}
+else
+{
+    <table class="grid">
+        <thead><tr><th>ID</th><th>NAME</th><th>CONTACT</th><th class="n">TERMS</th><th class="n">BALANCE</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var p in parties)
+        {
+            <tr>
+                <td><a href="@k.Url("parties/" + p.Id)">@p.Id</a></td>
+                <td>@p.Name</td>
+                <td>@p.Contact</td>
+                <td class="n">@p.TermsDays DAYS</td>
+                <td class="n">@Fmt.Amt(p.Balance)</td>
+                <td><a href="@k.Url("invoice")?party=@p.Id">INVOICE</a> <a href="@k.Url("settle")?party=@p.Id">@k.Settlement</a></td>
+            </tr>
+        }
+        <tr class="grand"><td></td><td>TOTAL @k.LedgerName</td><td></td><td></td><td class="n">@Fmt.Amt(parties.Sum(p => p.Balance))</td><td></td></tr>
+        </tbody>
+    </table>
+}

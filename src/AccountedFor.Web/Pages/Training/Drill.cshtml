@@ -1,0 +1,45 @@
+@page
+@model DrillModel
+@{
+    ViewData["ScreenId"] = "TR200";
+    ViewData["Title"] = "DEBIT OR CREDIT? DRILL";
+    ViewData["Exit"] = "/Menu/TRN";
+    ViewData["HelpTopic"] = "BASICS";
+    var c = Model.Company;
+    var q = c.CurrentDrillQuestion;
+    var last = Model.Last;
+}
+<p>CORRECT <span class="wh">@c.Drill.Correct</span> / ATTEMPTS <span class="wh">@c.Drill.Attempts</span>  STREAK <span class="ye">@c.Drill.Streak</span>  BEST <span class="ye">@c.Drill.BestStreak</span>  <span class="dim">(+5 PTS PER CORRECT ANSWER)</span></p>
+@if (last is not null)
+{
+    <div class="box @(last.IsCorrect ? "good" : "warn")">
+        <p class="@(last.IsCorrect ? "good" : "rd")">@(last.IsCorrect ? "CORRECT!" : "NOT QUITE.") <span class="dim">@last.Question.Scenario</span></p>
+        <p>ANSWER: DR <span class="wh">@last.Question.DebitCode @c.FindAccount(last.Question.DebitCode)?.Name</span>
+            CR <span class="wh">@last.Question.CreditCode @c.FindAccount(last.Question.CreditCode)?.Name</span>
+            @if (!last.IsCorrect) { <span class="dim">(YOU ANSWERED DR @(Model.LastDebit) CR @(Model.LastCredit))</span> }</p>
+        <p>@last.Question.Explanation</p>
+    </div>
+}
+<h2>QUESTION</h2>
+<p class="wh">@q.Scenario</p>
+<form method="post" autocomplete="off">
+    <table class="form">
+        <tr>
+            <td class="lbl"><label for="dr">DEBIT ACCOUNT</label><span class="dots"></span></td>
+            <td><input id="dr" class="fld w4" asp-for="Debit" maxlength="4" list="accounts" data-name="drname" value="" /> <span id="drname" class="cy"></span></td>
+        </tr>
+        <tr>
+            <td class="lbl"><label for="cr">CREDIT ACCOUNT</label><span class="dots"></span></td>
+            <td><input id="cr" class="fld w4" asp-for="Credit" maxlength="4" list="accounts" data-name="crname" value="" /> <span id="crname" class="cy"></span></td>
+        </tr>
+    </table>
+    <div class="actions"><button type="submit" class="btn">ENTER=ANSWER</button></div>
+</form>
+<h2>CHART CHEAT-SHEET</h2>
+<table class="grid">
+    @foreach (var group in c.Accounts.Where(a => !a.IsUserDefined).GroupBy(a => a.Type))
+    {
+        <tr><td class="ye">@group.Key.ToString().ToUpperInvariant() (@(group.Key.NormalBalance() == NormalBalance.Debit ? "DR+" : "CR+"))</td>
+            <td>@string.Join("  ", group.Select(a => a.Code + " " + a.Name))</td></tr>
+    }
+</table>

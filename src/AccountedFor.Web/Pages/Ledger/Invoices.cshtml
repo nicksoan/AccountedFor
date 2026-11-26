@@ -1,0 +1,53 @@
+@page "/{ledger:regex(^(ar|ap)$)}/invoices"
+@model InvoicesModel
+@{
+    var k = Model.Kind;
+    ViewData["ScreenId"] = $"{k.Code}500";
+    ViewData["Title"] = $"{k.InvoiceTitle} LIST";
+    ViewData["PfKeys"] = new[] { new PfKey("F6", "NEW INVOICE", k.Url("invoice")) };
+    var invoices = k.Invoices(Model.Company);
+    var settlements = k.Settlements(Model.Company);
+}
+@if (invoices.Count == 0)
+{
+    <div class="box">NO INVOICES YET. PRESS F6 TO RAISE ONE.</div>
+}
+else
+{
+    <table class="grid">
+        <thead><tr><th>INVOICE</th><th>@k.Party</th><th>DATE</th><th>DUE</th><th>REF</th><th class="n">NET</th><th class="n">VAT</th><th class="n">GROSS</th><th class="n">OUTSTANDING</th><th>JNL</th></tr></thead>
+        <tbody>
+        @foreach (var i in invoices)
+        {
+            <tr>
+                <td>@i.Number</td>
+                <td><a href="@k.Url("parties/" + i.PartyId)">@i.PartyId</a></td>
+                <td>@Fmt.Date(i.Date)</td>
+                <td class="@(!i.IsPaid && i.DueDate < TerminalPageModel.Today ? "rd" : "")">@Fmt.Date(i.DueDate)</td>
+                <td>@i.Reference</td>
+                <td class="n">@Fmt.Amt(i.Net)</td>
+                <td class="n">@Fmt.Amt(i.Vat)</td>
+                <td class="n">@Fmt.Amt(i.Gross)</td>
+                <td class="n">@if (i.IsPaid) { <span class="good">PAID</span> } else { <a href="@k.Url("settle")?invoice=@i.Number">@Fmt.Amt(i.Outstanding)</a> }</td>
+                <td><a href="/Gl/JournalView/@i.JournalNumber">@Fmt.Jnl(i.JournalNumber)</a></td>
+            </tr>
+        }
+        <tr class="grand"><td colspan="5">TOTALS</td><td class="n">@Fmt.Amt(invoices.Sum(i => i.Net))</td><td class="n">@Fmt.Amt(invoices.Sum(i => i.Vat))</td><td class="n">@Fmt.Amt(invoices.Sum(i => i.Gross))</td><td class="n">@Fmt.Amt(invoices.Sum(i => i.Outstanding))</td><td></td></tr>
+        </tbody>
+    </table>
+}
+@if (settlements.Count > 0)
+{
+    <h2>@(k.IsReceivables ? "RECEIPTS" : "PAYMENTS")</h2>
+    <table class="grid">
+        <thead><tr><th>NUMBER</th><th>@k.Party</th><th>DATE</th><th>BANK</th><th class="n">AMOUNT</th><th>ALLOCATED TO</th><th>JNL</th></tr></thead>
+        <tbody>
+        @foreach (var s in settlements)
+        {
+            <tr><td>@s.Number</td><td>@s.PartyId</td><td>@Fmt.Date(s.Date)</td><td>@s.BankAccount</td><td class="n">@Fmt.Amt(s.Amount)</td>
+                <td>@string.Join(", ", s.Allocations.Select(a => a.InvoiceNumber))</td>
+                <td><a href="/Gl/JournalView/@s.JournalNumber">@Fmt.Jnl(s.JournalNumber)</a></td></tr>
+        }
+        </tbody>
+    </table>
+}
