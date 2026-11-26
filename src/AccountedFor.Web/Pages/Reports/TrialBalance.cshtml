@@ -1,0 +1,43 @@
+@page
+@model TrialBalanceModel
+@{
+    ViewData["ScreenId"] = "RP100";
+    ViewData["Title"] = "TRIAL BALANCE";
+    ViewData["Exit"] = "/Menu/RPT";
+    ViewData["HelpTopic"] = "TB";
+    ViewData["PfKeys"] = new[] { new PfKey("F7", "P&L", "/Reports/ProfitLoss"), new PfKey("F8", "BAL SHEET", "/Reports/BalanceSheet") };
+    var dr = Model.Rows.Sum(r => r.Debit);
+    var cr = Model.Rows.Sum(r => r.Credit);
+}
+<form method="get" autocomplete="off">
+    <label for="asof" class="cy">AS AT ===&gt;</label>
+    <input id="asof" class="fld w10" name="asOf" value="@Model.AsOf" maxlength="10" />
+    <button type="submit" class="btn">ENTER=REFRESH</button>
+    <span class="dim">BLANK = ALL POSTINGS</span>
+</form>
+<h2>@Model.Company.Name - TRIAL BALANCE @(string.IsNullOrEmpty(Model.AsOf) ? "" : "AS AT " + Model.AsOf)</h2>
+<table class="grid">
+    <thead><tr><th>ACCT</th><th>ACCOUNT NAME</th><th>TYPE</th><th class="n">DEBIT</th><th class="n">CREDIT</th></tr></thead>
+    <tbody>
+    @foreach (var r in Model.Rows)
+    {
+        <tr>
+            <td><a href="/Gl/Inquiry?code=@r.Account.Code">@r.Account.Code</a></td>
+            <td>@r.Account.Name</td>
+            <td>@r.Account.Type.ShortCode()</td>
+            <td class="n">@Fmt.AmtOrBlank(r.Debit)</td>
+            <td class="n">@Fmt.AmtOrBlank(r.Credit)</td>
+        </tr>
+    }
+    <tr class="grand"><td></td><td>TOTALS</td><td></td><td class="n">@Fmt.Amt(dr)</td><td class="n">@Fmt.Amt(cr)</td></tr>
+    </tbody>
+</table>
+@if (dr == cr)
+{
+    <div class="box good">TOTAL DEBITS = TOTAL CREDITS. THE LEDGER IS ARITHMETICALLY IN BALANCE.
+        <span class="dim">(A BALANCED TB DOES NOT CATCH EVERY ERROR - SEE F1.)</span></div>
+}
+else
+{
+    <div class="box warn">OUT OF BALANCE BY @Fmt.Amt(Math.Abs(dr - cr))</div>
+}

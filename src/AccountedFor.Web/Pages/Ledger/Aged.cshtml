@@ -1,0 +1,35 @@
+@page "/{ledger:regex(^(ar|ap)$)}/aged"
+@model AgedModel
+@{
+    var k = Model.Kind;
+    ViewData["ScreenId"] = $"{k.Code}600";
+    ViewData["Title"] = k.AgedTitle;
+    var rows = Model.Rows;
+}
+<form method="get" autocomplete="off">
+    <label for="asof" class="cy">AS AT ===&gt;</label>
+    <input id="asof" class="fld w10" name="asOf" value="@Model.AsOf" maxlength="10" />
+    <button type="submit" class="btn">ENTER=REFRESH</button>
+</form>
+<p class="cy">OUTSTANDING BALANCES BY DAYS PAST DUE DATE. @(k.IsReceivables ? "CHASE THE OLDEST DEBTS FIRST." : "PLAN PAYMENTS SO SUPPLIERS ARE PAID ON TIME.")</p>
+@if (rows.Count == 0)
+{
+    <div class="box good">NOTHING OUTSTANDING.</div>
+}
+else
+{
+    <table class="grid">
+        <thead><tr><th>ID</th><th>@k.Party</th><th class="n">NOT YET DUE</th><th class="n">1-30</th><th class="n">31-60</th><th class="n">61-90</th><th class="n">90+</th><th class="n">TOTAL</th></tr></thead>
+        <tbody>
+        @foreach (var r in rows)
+        {
+            <tr><td><a href="@k.Url("parties/" + r.PartyId)">@r.PartyId</a></td><td>@r.PartyName</td>
+                <td class="n">@Fmt.AmtOrBlank(r.Current)</td><td class="n">@Fmt.AmtOrBlank(r.Days1To30)</td><td class="n">@Fmt.AmtOrBlank(r.Days31To60)</td>
+                <td class="n">@Fmt.AmtOrBlank(r.Days61To90)</td><td class="n rd">@Fmt.AmtOrBlank(r.Over90)</td><td class="n">@Fmt.Amt(r.Total)</td></tr>
+        }
+        <tr class="grand"><td></td><td>TOTAL</td>
+            <td class="n">@Fmt.Amt(rows.Sum(r => r.Current))</td><td class="n">@Fmt.Amt(rows.Sum(r => r.Days1To30))</td><td class="n">@Fmt.Amt(rows.Sum(r => r.Days31To60))</td>
+            <td class="n">@Fmt.Amt(rows.Sum(r => r.Days61To90))</td><td class="n">@Fmt.Amt(rows.Sum(r => r.Over90))</td><td class="n">@Fmt.Amt(rows.Sum(r => r.Total))</td></tr>
+        </tbody>
+    </table>
+}

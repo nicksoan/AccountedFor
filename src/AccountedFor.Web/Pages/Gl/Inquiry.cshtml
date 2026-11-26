@@ -1,0 +1,72 @@
+@page
+@model InquiryModel
+@{
+    ViewData["ScreenId"] = "GL500";
+    ViewData["Title"] = "ACCOUNT INQUIRY - T-ACCOUNT";
+    ViewData["Exit"] = "/Menu/GL";
+    ViewData["HelpTopic"] = "TACCOUNT";
+    ViewData["PfKeys"] = new[] { new PfKey("F5", "CHART", "/Gl/Accounts") };
+    var a = Model.Account;
+}
+<form method="get" autocomplete="off">
+    <label for="code" class="cy">ACCOUNT CODE ===&gt;</label>
+    <input id="code" class="fld w4" name="code" value="@Model.Code" maxlength="4" list="accounts" data-name="acname" />
+    <span id="acname" class="wh">@a?.Name</span>
+    <button type="submit" class="btn">ENTER=DISPLAY</button>
+</form>
+@if (a is not null)
+{
+    var rows = Model.Rows;
+    var dr = rows.Sum(r => r.Line.Debit);
+    var cr = rows.Sum(r => r.Line.Credit);
+    var bal = dr - cr;
+    var total = Math.Max(dr, cr);
+    <p>TYPE: <span class="wh">@a.Type.ToString().ToUpperInvariant()</span>  NORMAL BALANCE: <span class="wh">@a.NormalBalance.ToString().ToUpperInvariant()</span>
+        @if (a.Control != ControlType.None) { <span class="ye">  CONTROL ACCOUNT FOR THE @(a.Control == ControlType.Receivables ? "SALES" : "PURCHASE") LEDGER</span> }
+        @if (!string.IsNullOrEmpty(a.Description)) { <br /><span class="dim">@a.Description</span> }</p>
+    <div class="taccount">
+        <div class="t-title">@a.Code @a.Name</div>
+        <div class="t-side">
+            <div class="cy">DR (DEBIT)</div>
+            @foreach (var r in rows.Where(r => r.Line.Debit > 0))
+            {
+                <div class="t-row"><span>@Fmt.Date(r.Journal.Date) <a href="/Gl/JournalView/@r.Journal.Number">@Fmt.Jnl(r.Journal.Number)</a> @r.Journal.Description</span><span>@Fmt.Amt(r.Line.Debit)</span></div>
+            }
+            @if (bal < 0)
+            {
+                <div class="t-row ye"><span>BALANCE C/D</span><span>@Fmt.Amt(-bal)</span></div>
+            }
+            <div class="t-total"><span></span><span>@Fmt.Amt(total)</span></div>
+            @if (bal > 0)
+            {
+                <div class="t-row ye"><span>BALANCE B/D</span><span>@Fmt.Amt(bal)</span></div>
+            }
+        </div>
+        <div class="t-side">
+            <div class="cy">CR (CREDIT)</div>
+            @foreach (var r in rows.Where(r => r.Line.Credit > 0))
+            {
+                <div class="t-row"><span>@Fmt.Date(r.Journal.Date) <a href="/Gl/JournalView/@r.Journal.Number">@Fmt.Jnl(r.Journal.Number)</a> @r.Journal.Description</span><span>@Fmt.Amt(r.Line.Credit)</span></div>
+            }
+            @if (bal > 0)
+            {
+                <div class="t-row ye"><span>BALANCE C/D</span><span>@Fmt.Amt(bal)</span></div>
+            }
+            <div class="t-total"><span></span><span>@Fmt.Amt(total)</span></div>
+            @if (bal < 0)
+            {
+                <div class="t-row ye"><span>BALANCE B/D</span><span>@Fmt.Amt(-bal)</span></div>
+            }
+        </div>
+    </div>
+    <p>BALANCE: <span class="wh">@Fmt.Amt(Math.Abs(bal)) @(bal == 0 ? "NIL" : bal > 0 ? "DR" : "CR")</span>
+        @if (bal != 0 && (bal > 0) != (a.NormalBalance == NormalBalance.Debit))
+        {
+            <span class="ye"> - UNUSUAL: THIS ACCOUNT NORMALLY HAS A @a.NormalBalance.ToString().ToUpperInvariant() BALANCE</span>
+        }
+    </p>
+}
+else
+{
+    <div class="box">ENTER AN ACCOUNT CODE, OR PICK ONE FROM THE <a href="/Gl/Accounts">CHART OF ACCOUNTS</a>.</div>
+}

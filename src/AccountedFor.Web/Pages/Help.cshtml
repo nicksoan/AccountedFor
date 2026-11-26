@@ -1,0 +1,22 @@
+@page
+@model HelpModel
+@{
+    ViewData["ScreenId"] = "FIDHELP";
+    ViewData["Title"] = "TUTORIAL AND HELP";
+    ViewData["HelpTopic"] = "NAV";
+    if (Model.ReturnUrl is not null) { ViewData["Exit"] = Model.ReturnUrl; }
+    var topic = Model.Topic;
+}
+<h2>@topic.Title</h2>
+<pre class="wh">@string.Join("\n", topic.Lines)</pre>
+<div class="rule"></div>
+<p class="cy">TOPICS:</p>
+<table class="menu">
+    @foreach (var t in HelpTopics.All)
+    {
+        <tr>
+            <td class="code">@t.Key</td>
+            <td><a href="/Help?topic=@t.Key">@t.Title</a></td>
+        </tr>
+    }
+</table>

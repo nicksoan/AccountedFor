@@ -1,0 +1,52 @@
+@page "/{ledger:regex(^(ar|ap)$)}/settle"
+@model SettleModel
+@{
+    var k = Model.Kind;
+    ViewData["ScreenId"] = $"{k.Code}400";
+    ViewData["Title"] = k.IsReceivables ? "CUSTOMER RECEIPT" : "SUPPLIER PAYMENT";
+    ViewData["PfKeys"] = new[] { new PfKey("F5", k.Parties, k.Url("parties")), new PfKey("F7", "INVOICES", k.Url("invoices")) };
+    var parties = k.PartyList(Model.Company);
+    var open = k.Invoices(Model.Company).Where(i => !i.IsPaid).ToList();
+}
+<p class="cy">POSTS: @k.SettlementDoubleEntry</p>
+@if (parties.Count == 0)
+{
+    <div class="box warn">YOU NEED A @k.Party FIRST. <a href="@k.Url("parties/new")">CREATE ONE</a>.</div>
+}
+else
+{
+    <form method="post" autocomplete="off">
+        <table class="form">
+            <tr>
+                <td class="lbl"><label for="party">@k.Party</label><span class="dots"></span></td>
+                <td><select id="party" class="fld" asp-for="Party">
+                    @foreach (var p in parties) { <option value="@p.Id">@p.Id - @p.Name (BAL @Fmt.Amt(p.Balance))</option> }
+                </select></td>
+            </tr>
+            <tr>
+                <td class="lbl"><label for="date">DATE</label><span class="dots"></span></td>
+                <td><input id="date" class="fld w10" asp-for="Date" maxlength="10" /> <span class="dim">YYYY-MM-DD</span></td>
+            </tr>
+            <tr>
+                <td class="lbl"><label for="amount">AMOUNT</label><span class="dots"></span></td>
+                <td><input id="amount" class="fld w12 num" asp-for="Amount" maxlength="15" /></td>
+            </tr>
+            <tr>
+                <td class="lbl"><label for="bank">BANK ACCOUNT</label><span class="dots"></span></td>
+                <td><input id="bank" class="fld w4" asp-for="Bank" maxlength="4" list="accounts" data-name="bankname" /> <span id="bankname" class="cy">@Model.Company.FindAccount(Model.Bank)?.Name</span></td>
+            </tr>
+            <tr>
+                <td class="lbl"><label for="invoice">ALLOCATE TO INVOICE</label><span class="dots"></span></td>
+                <td><select id="invoice" class="fld" asp-for="Invoice">
+                    <option value="">OLDEST FIRST (AUTOMATIC)</option>
+                    @foreach (var i in open) { <option value="@i.Number">@i.Number - @i.PartyId - DUE @Fmt.Date(i.DueDate) - O/S @Fmt.Amt(i.Outstanding)</option> }
+                </select></td>
+            </tr>
+            <tr>
+                <td class="lbl"><label for="ref">REFERENCE</label><span class="dots"></span></td>
+                <td><input id="ref" class="fld w14" asp-for="Reference" maxlength="20" /> <span class="dim">OPTIONAL</span></td>
+            </tr>
+        </table>
+        <div class="actions"><button type="submit" class="btn">ENTER=POST @(k.IsReceivables ? "RECEIPT" : "PAYMENT")</button></div>
+    </form>
+}

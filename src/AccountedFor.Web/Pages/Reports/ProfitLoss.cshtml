@@ -1,0 +1,39 @@
+@page
+@model ProfitLossModel
+@{
+    ViewData["ScreenId"] = "RP200";
+    ViewData["Title"] = "PROFIT AND LOSS";
+    ViewData["Exit"] = "/Menu/RPT";
+    ViewData["HelpTopic"] = "STATEMENTS";
+    ViewData["PfKeys"] = new[] { new PfKey("F7", "TRIAL BAL", "/Reports/TrialBalance"), new PfKey("F8", "BAL SHEET", "/Reports/BalanceSheet") };
+    var s = Model.Statement;
+}
+<form method="get" autocomplete="off">
+    <label for="from" class="cy">FROM ===&gt;</label>
+    <input id="from" class="fld w10" name="from" value="@Model.From" maxlength="10" />
+    <label for="to" class="cy">TO ===&gt;</label>
+    <input id="to" class="fld w10" name="to" value="@Model.To" maxlength="10" />
+    <button type="submit" class="btn">ENTER=REFRESH</button>
+</form>
+@if (s is not null)
+{
+    <h2>@Model.Company.Name - PROFIT AND LOSS @Fmt.Date(s.From) TO @Fmt.Date(s.To)</h2>
+    <table class="grid">
+        <tbody>
+        <tr><td colspan="3" class="ye">REVENUE</td></tr>
+        @foreach (var r in s.Revenue)
+        {
+            <tr><td><a href="/Gl/Inquiry?code=@r.Account.Code">@r.Account.Code</a></td><td>@r.Account.Name</td><td class="n">@Fmt.Amt(r.Amount)</td></tr>
+        }
+        <tr class="total"><td></td><td>TOTAL REVENUE</td><td class="n">@Fmt.Amt(s.TotalRevenue)</td></tr>
+        <tr><td colspan="3" class="ye">EXPENSES</td></tr>
+        @foreach (var r in s.Expenses)
+        {
+            <tr><td><a href="/Gl/Inquiry?code=@r.Account.Code">@r.Account.Code</a></td><td>@r.Account.Name</td><td class="n">@Fmt.Amt(r.Amount)</td></tr>
+        }
+        <tr class="total"><td></td><td>TOTAL EXPENSES</td><td class="n">@Fmt.Amt(s.TotalExpenses)</td></tr>
+        <tr class="grand"><td></td><td>NET @(s.NetProfit >= 0 ? "PROFIT" : "LOSS")</td><td class="n">@Fmt.Amt(s.NetProfit)</td></tr>
+        </tbody>
+    </table>
+    <p class="dim">REVENUE - EXPENSES = PROFIT. YEAR-END CLOSING JOURNALS ARE EXCLUDED SO THE PERIOD'S TRADING IS STILL SHOWN.</p>
+}

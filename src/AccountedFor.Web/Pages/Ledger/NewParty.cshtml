@@ -1,0 +1,25 @@
+@page "/{ledger:regex(^(ar|ap)$)}/parties/new"
+@model NewPartyModel
+@{
+    var k = Model.Kind;
+    ViewData["ScreenId"] = $"{k.Code}200";
+    ViewData["Title"] = $"NEW {k.Party}";
+}
+<p class="cy">OPEN A NEW @k.Party ACCOUNT IN THE @k.LedgerName.</p>
+<form method="post" autocomplete="off">
+    <table class="form">
+        <tr>
+            <td class="lbl"><label for="name">@k.Party NAME</label><span class="dots"></span></td>
+            <td><input id="name" class="fld w30" asp-for="Name" maxlength="40" /></td>
+        </tr>
+        <tr>
+            <td class="lbl"><label for="contact">CONTACT</label><span class="dots"></span></td>
+            <td><input id="contact" class="fld w30" asp-for="Contact" maxlength="40" /> <span class="dim">OPTIONAL</span></td>
+        </tr>
+        <tr>
+            <td class="lbl"><label for="terms">PAYMENT TERMS (DAYS)</label><span class="dots"></span></td>
+            <td><input id="terms" class="fld w4 num" asp-for="Terms" maxlength="3" /></td>
+        </tr>
+    </table>
+    <div class="actions"><button type="submit" class="btn">ENTER=CREATE @k.Party</button></div>
+</form>

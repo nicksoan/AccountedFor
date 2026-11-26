@@ -1,0 +1,53 @@
+@page
+@model IndexModel
+@{
+    ViewData["ScreenId"] = "FIDLOGON";
+    ViewData["Title"] = "SIGN ON";
+    ViewData["HelpTopic"] = "NAV";
+}
+<pre class="banner" aria-label="FIDOS">
+  ███████╗██╗██████╗  ██████╗ ███████╗
+  ██╔════╝██║██╔══██╗██╔═══██╗██╔════╝
+  █████╗  ██║██║  ██║██║   ██║███████╗
+  ██╔══╝  ██║██║  ██║██║   ██║╚════██║
+  ██║     ██║██████╔╝╚██████╔╝███████║
+  ╚═╝     ╚═╝╚═════╝  ╚═════╝ ╚══════╝
+</pre>
+<p class="wh">NORTHSEA - FIDOS ENTERPRISE RESOURCE PLANNING</p>
+<p class="cy">ACCOUNTED FOR: A DOUBLE-ENTRY BOOKKEEPING TRAINING SANDBOX</p>
+<div class="rule"></div>
+<p class="ye">THIS IS A TRAINING SYSTEM. EVERYTHING YOU POST LIVES IN YOUR OWN PRIVATE SANDBOX.</p>
+<p class="dim">DO NOT ENTER REAL OR PERSONAL FINANCIAL DATA.</p>
+
+<form method="post" autocomplete="off">
+    <table class="form">
+        <tr>
+            <td class="lbl"><label for="op">USERID</label><span class="dots"></span></td>
+            <td><input id="op" class="fld w10" asp-for="OperatorId" maxlength="8" autofocus /> <span class="dim">1-8 LETTERS/DIGITS</span></td>
+        </tr>
+        <tr>
+            <td class="lbl"><label for="sb">RESUME SANDBOX ID</label><span class="dots"></span></td>
+            <td><input id="sb" class="fld w40" asp-for="SandboxKey" maxlength="40" spellcheck="false" /> <span class="dim">OPTIONAL</span></td>
+        </tr>
+        <tr>
+            <td class="lbl"><label for="nw">START NEW SANDBOX (Y/N)</label><span class="dots"></span></td>
+            <td><input id="nw" class="fld w4" asp-for="StartNew" maxlength="1" /></td>
+        </tr>
+    </table>
+    @if (Model.Existing is not null)
+    {
+        <div class="box good">
+            WELCOME BACK. THIS BROWSER HAS A SANDBOX FOR <span class="wh">@Model.Existing.OperatorId</span>
+            (@Model.Existing.Journals.Count @(Model.Existing.Journals.Count == 1 ? "JOURNAL" : "JOURNALS"), RANK <span class="ye">@Model.Existing.Rank</span>).
+            PRESS ENTER TO RESUME IT.
+        </div>
+    }
+    else
+    {
+        <div class="box">
+            PRESS ENTER TO CREATE YOUR SANDBOX. TO CONTINUE ON ANOTHER DEVICE, ENTER THE SANDBOX ID
+            SHOWN ON THE SANDBOX UTILITIES SCREEN (OPTION 9).
+        </div>
+    }
+    <div class="actions"><button type="submit" class="btn">ENTER=LOGON</button></div>
+</form>

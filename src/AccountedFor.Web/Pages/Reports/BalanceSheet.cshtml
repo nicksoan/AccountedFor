@@ -1,0 +1,44 @@
+@page
+@model BalanceSheetModel
+@{
+    ViewData["ScreenId"] = "RP300";
+    ViewData["Title"] = "BALANCE SHEET";
+    ViewData["Exit"] = "/Menu/RPT";
+    ViewData["HelpTopic"] = "STATEMENTS";
+    ViewData["PfKeys"] = new[] { new PfKey("F7", "TRIAL BAL", "/Reports/TrialBalance"), new PfKey("F8", "P&L", "/Reports/ProfitLoss") };
+    var s = Model.Sheet;
+}
+<form method="get" autocomplete="off">
+    <label for="asof" class="cy">AS AT ===&gt;</label>
+    <input id="asof" class="fld w10" name="asOf" value="@Model.AsOf" maxlength="10" />
+    <button type="submit" class="btn">ENTER=REFRESH</button>
+</form>
+@if (s is not null)
+{
+    void Section(string title, IReadOnlyList<StatementRow> rows)
+    {
+        <tr><td colspan="3" class="ye">@title</td></tr>
+        foreach (var r in rows)
+        {
+            <tr><td><a href="/Gl/Inquiry?code=@r.Account.Code">@r.Account.Code</a></td><td>@r.Account.Name</td><td class="n">@Fmt.Amt(r.Amount)</td></tr>
+        }
+    }
+    <h2>@Model.Company.Name - BALANCE SHEET AS AT @Fmt.Date(s.AsOf)</h2>
+    <table class="grid">
+        <tbody>
+        @{ Section("ASSETS", s.Assets); }
+        <tr class="grand"><td></td><td>TOTAL ASSETS</td><td class="n">@Fmt.Amt(s.TotalAssets)</td></tr>
+        @{ Section("LIABILITIES", s.Liabilities); }
+        <tr class="total"><td></td><td>TOTAL LIABILITIES</td><td class="n">@Fmt.Amt(s.TotalLiabilities)</td></tr>
+        @{ Section("EQUITY", s.Equity); }
+        <tr><td></td><td>CURRENT YEAR EARNINGS (UNCLOSED PROFIT)</td><td class="n">@Fmt.Amt(s.CurrentEarnings)</td></tr>
+        <tr class="total"><td></td><td>TOTAL EQUITY</td><td class="n">@Fmt.Amt(s.TotalEquity)</td></tr>
+        <tr class="grand"><td></td><td>TOTAL LIABILITIES + EQUITY</td><td class="n">@Fmt.Amt(s.TotalLiabilitiesAndEquity)</td></tr>
+        </tbody>
+    </table>
+    <div class="box @(s.Balances ? "good" : "warn")">
+        ASSETS @Fmt.Amt(s.TotalAssets) @(s.Balances ? "=" : "<>") LIABILITIES @Fmt.Amt(s.TotalLiabilities) + EQUITY @Fmt.Amt(s.TotalEquity)
+        @(s.Balances ? " - THE ACCOUNTING EQUATION HOLDS." : "")
+    </div>
+    <p class="dim">CONTRA ACCOUNTS (ACCUMULATED DEPRECIATION, DRAWINGS) APPEAR AS NEGATIVES IN THEIR SECTION.</p>
+}

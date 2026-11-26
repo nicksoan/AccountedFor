@@ -1,0 +1,44 @@
+@page "{number:int}"
+@model LevelModel
+@{
+    var l = Model.Level;
+    var c = Model.Company;
+    ViewData["ScreenId"] = $"TR1{l.Number:00}";
+    ViewData["Title"] = $"LEVEL {l.Number}: {l.Title}";
+    ViewData["Exit"] = "/Training";
+    ViewData["HelpTopic"] = "LEVELS";
+    var done = c.IsLevelComplete(l.Number);
+}
+<h2>LEVEL @l.Number - @l.Title <span class="dim">(@l.Concept, @l.Points PTS)</span></h2>
+@if (!c.IsLevelUnlocked(l.Number))
+{
+    <div class="box warn">LOCKED - COMPLETE LEVEL @(l.Number - 1) FIRST. YOU CAN STILL READ THE BRIEFING.</div>
+}
+else if (done)
+{
+    <div class="box good">MISSION COMPLETE @c.CompletedLevels[l.Number].ToString("yyyy-MM-dd HH:mm") UTC.</div>
+}
+<p class="cy">BRIEFING</p>
+@foreach (var line in l.Briefing)
+{
+    <p class="wh">@line</p>
+}
+<p class="cy">OBJECTIVES</p>
+<table class="grid">
+    @foreach (var o in l.Objectives)
+    {
+        var met = o.IsMet(c);
+        <tr><td>@(met ? "[X]" : "[ ]")</td><td class="@(met ? "good" : "")">@o.Text</td></tr>
+    }
+</table>
+<details>
+    <summary class="ye">HINTS (CLICK TO REVEAL)</summary>
+    @foreach (var h in l.Hints)
+    {
+        <p>- @h</p>
+    }
+</details>
+<div class="actions">
+    @if (l.Number > 1) { <a class="btn" href="/Training/Level/@(l.Number - 1)" data-pf="F7">F7=PREV LEVEL</a> }
+    @if (l.Number < LevelCatalog.All.Count) { <a class="btn" href="/Training/Level/@(l.Number + 1)" data-pf="F8">F8=NEXT LEVEL</a> }
+</div>

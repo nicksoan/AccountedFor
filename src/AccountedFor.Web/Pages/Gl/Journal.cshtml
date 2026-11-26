@@ -1,0 +1,50 @@
+@page
+@model JournalModel
+@{
+    ViewData["ScreenId"] = "GL300";
+    ViewData["Title"] = "JOURNAL ENTRY";
+    ViewData["Exit"] = "/Menu/GL";
+    ViewData["HelpTopic"] = "JOURNAL";
+    ViewData["PfKeys"] = new[] { new PfKey("F5", "CHART", "/Gl/Accounts"), new PfKey("F6", "NEW ACCOUNT", "/Gl/NewAccount"), new PfKey("F7", "JOURNALS", "/Gl/Journals") };
+}
+<form method="post" autocomplete="off" data-journal>
+    <table class="form">
+        <tr>
+            <td class="lbl"><label for="date">DATE</label><span class="dots"></span></td>
+            <td><input id="date" class="fld w10" asp-for="Date" maxlength="10" /> <span class="dim">YYYY-MM-DD</span></td>
+        </tr>
+        <tr>
+            <td class="lbl"><label for="desc">DESCRIPTION</label><span class="dots"></span></td>
+            <td><input id="desc" class="fld w40" asp-for="Description" maxlength="40" /></td>
+        </tr>
+        <tr>
+            <td class="lbl"><label for="ref">REFERENCE</label><span class="dots"></span></td>
+            <td><input id="ref" class="fld w10" asp-for="Reference" maxlength="20" /> <span class="dim">OPTIONAL</span></td>
+        </tr>
+    </table>
+    <table class="grid">
+        <thead><tr><th>LN</th><th>ACCT</th><th>ACCOUNT NAME</th><th class="n">DEBIT</th><th class="n">CREDIT</th><th>MEMO</th></tr></thead>
+        <tbody>
+        @for (var i = 0; i < Model.Lines.Count; i++)
+        {
+            var name = Model.Company.FindAccount(Model.Lines[i].Account)?.Name;
+            <tr>
+                <td class="dim">@((i + 1).ToString("00"))</td>
+                <td><input class="fld w4" name="Lines[@i].Account" value="@Model.Lines[i].Account" maxlength="4" list="accounts" data-name="nm@(i)" aria-label="LINE @(i + 1) ACCOUNT" /></td>
+                <td id="nm@(i)" class="cy">@name</td>
+                <td><input class="fld w12 num dr" name="Lines[@i].Debit" value="@Model.Lines[i].Debit" maxlength="15" aria-label="LINE @(i + 1) DEBIT" /></td>
+                <td><input class="fld w12 num cr" name="Lines[@i].Credit" value="@Model.Lines[i].Credit" maxlength="15" aria-label="LINE @(i + 1) CREDIT" /></td>
+                <td><input class="fld w20" name="Lines[@i].Memo" value="@Model.Lines[i].Memo" maxlength="40" aria-label="LINE @(i + 1) MEMO" /></td>
+            </tr>
+        }
+        <tr class="total">
+            <td></td><td></td><td>TOTALS</td>
+            <td id="tot-dr" class="n">0.00</td>
+            <td id="tot-cr" class="n">0.00</td>
+            <td id="tot-status"></td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="actions"><button type="submit" class="btn">ENTER=POST JOURNAL</button></div>
+</form>
+<p class="dim">EVERY JOURNAL NEEDS AT LEAST TWO LINES AND TOTAL DEBITS MUST EQUAL TOTAL CREDITS. CONTROL ACCOUNTS 1100/2000 ARE POSTED VIA AR/AP.</p>

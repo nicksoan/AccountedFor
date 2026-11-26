@@ -1,0 +1,37 @@
+@page
+@model JournalsModel
+@{
+    ViewData["ScreenId"] = "GL400";
+    ViewData["Title"] = "JOURNAL LIST / DAY BOOK";
+    ViewData["Exit"] = "/Menu/GL";
+    ViewData["HelpTopic"] = "JOURNAL";
+    ViewData["PfKeys"] = new[] { new PfKey("F6", "NEW JOURNAL", "/Gl/Journal") };
+    var journals = Model.Company.Journals.OrderBy(j => j.Date).ThenBy(j => j.Number).ToList();
+}
+<p class="cy">SRC: MJ=MANUAL JOURNAL  SL=SALES LEDGER  PL=PURCHASE LEDGER  YE=YEAR END. SELECT A NUMBER TO VIEW.</p>
+@if (journals.Count == 0)
+{
+    <div class="box">NO JOURNALS POSTED YET. TYPE JE TO POST YOUR FIRST JOURNAL.</div>
+}
+else
+{
+    <table class="grid">
+        <thead><tr><th>JNL NO</th><th>DATE</th><th>SRC</th><th>REFERENCE</th><th>DESCRIPTION</th><th class="n">AMOUNT</th><th>STATUS</th></tr></thead>
+        <tbody>
+        @foreach (var j in journals)
+        {
+            <tr>
+                <td><a href="/Gl/JournalView/@j.Number">@Fmt.Jnl(j.Number)</a></td>
+                <td>@Fmt.Date(j.Date)</td>
+                <td>@JournalEntry.SourceCode(j.Source)</td>
+                <td>@j.Reference</td>
+                <td>@j.Description</td>
+                <td class="n">@Fmt.Amt(j.TotalDebits)</td>
+                <td>@if (j.ReversedBy is { } r) { <span class="rd">REVERSED BY @Fmt.Jnl(r)</span> }
+                    else if (j.ReversalOf is { } o) { <span class="ye">REVERSES @Fmt.Jnl(o)</span> }</td>
+            </tr>
+        }
+        <tr class="grand"><td colspan="5">@journals.Count JOURNALS</td><td class="n">@Fmt.Amt(journals.Sum(j => j.TotalDebits))</td><td></td></tr>
+        </tbody>
+    </table>
+}

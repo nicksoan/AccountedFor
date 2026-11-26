@@ -1,0 +1,28 @@
+@page
+@model LogoffModel
+@{
+    ViewData["ScreenId"] = "FIDLOGOF";
+    ViewData["Title"] = "LOG OFF";
+    ViewData["HelpTopic"] = "NAV";
+}
+@if (Model.LoggedOff)
+{
+    <h2>SESSION ENDED</h2>
+    <p>YOU HAVE BEEN LOGGED OFF FIDOS.</p>
+    <p>YOUR BOOKS ARE SAVED. TO RESUME LATER, LOG ON WITH THIS SANDBOX ID:</p>
+    <p class="ye">@Model.SandboxId</p>
+    <div class="actions"><a href="/" class="btn">RETURN TO SIGN ON</a></div>
+}
+else
+{
+    <h2>LOG OFF FIDOS?</h2>
+    <p>YOUR SANDBOX IS SAVED AUTOMATICALLY AFTER EVERY POSTING.</p>
+    <p>MAKE A NOTE OF YOUR SANDBOX ID IF YOU WANT TO RESUME ON ANOTHER BROWSER:</p>
+    <p class="ye">@Model.SandboxId</p>
+    <form method="post">
+        <div class="actions">
+            <button type="submit" class="btn" data-pf="F10">ENTER=CONFIRM LOG OFF</button>
+            <a href="/Menu" class="btn">F3=CANCEL</a>
+        </div>
+    </form>
+}

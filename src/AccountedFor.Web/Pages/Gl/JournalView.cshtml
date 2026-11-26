@@ -1,0 +1,58 @@
+@page "{number:int}"
+@model JournalViewModel
+@{
+    var j = Model.Journal;
+    ViewData["ScreenId"] = "GL410";
+    ViewData["Title"] = $"JOURNAL {Fmt.Jnl(j.Number)}";
+    ViewData["Exit"] = "/Gl/Journals";
+    ViewData["HelpTopic"] = "JOURNAL";
+    ViewData["PfKeys"] = new[] { new PfKey("F6", "NEW JOURNAL", "/Gl/Journal"), new PfKey("F7", "TRIAL BAL", "/Reports/TrialBalance") };
+}
+<table class="form">
+    <tr><td class="lbl">JOURNAL NO<span class="dots"></span></td><td class="wh">@Fmt.Jnl(j.Number)</td></tr>
+    <tr><td class="lbl">DATE<span class="dots"></span></td><td>@Fmt.Date(j.Date)</td></tr>
+    <tr><td class="lbl">SOURCE<span class="dots"></span></td><td>@JournalEntry.SourceCode(j.Source) - @j.Source.ToString().ToUpperInvariant()</td></tr>
+    <tr><td class="lbl">DESCRIPTION<span class="dots"></span></td><td>@j.Description</td></tr>
+    <tr><td class="lbl">REFERENCE<span class="dots"></span></td><td>@j.Reference</td></tr>
+    <tr><td class="lbl">POSTED BY<span class="dots"></span></td><td>@j.PostedBy @j.PostedUtc.ToString("yyyy-MM-dd HH:mm") UTC</td></tr>
+    @if (j.ReversalOf is { } of)
+    {
+        <tr><td class="lbl">REVERSES<span class="dots"></span></td><td><a href="/Gl/JournalView/@of">@Fmt.Jnl(of)</a></td></tr>
+    }
+    @if (j.ReversedBy is { } by)
+    {
+        <tr><td class="lbl">REVERSED BY<span class="dots"></span></td><td><a class="rd" href="/Gl/JournalView/@by">@Fmt.Jnl(by)</a></td></tr>
+    }
+</table>
+<table class="grid">
+    <thead><tr><th>ACCT</th><th>ACCOUNT NAME</th><th>TYPE</th><th class="n">DEBIT</th><th class="n">CREDIT</th><th>EFFECT</th><th>MEMO</th></tr></thead>
+    <tbody>
+    @foreach (var l in j.Lines)
+    {
+        var a = Model.Company.FindAccount(l.AccountCode);
+        var increases = a is not null && (l.Debit > 0) == (a.NormalBalance == NormalBalance.Debit);
+        <tr>
+            <td><a href="/Gl/Inquiry?code=@l.AccountCode">@l.AccountCode</a></td>
+            <td>@a?.Name@(l.PartyId is null ? "" : $" ({l.PartyId})")</td>
+            <td>@a?.Type.ShortCode()</td>
+            <td class="n">@Fmt.AmtOrBlank(l.Debit)</td>
+            <td class="n">@Fmt.AmtOrBlank(l.Credit)</td>
+            <td class="@(increases ? "good" : "ye")">@(increases ? "INCREASE" : "DECREASE")</td>
+            <td>@l.Memo</td>
+        </tr>
+    }
+    <tr class="grand"><td></td><td>TOTALS</td><td></td><td class="n">@Fmt.Amt(j.TotalDebits)</td><td class="n">@Fmt.Amt(j.TotalCredits)</td><td>@(j.TotalDebits == j.TotalCredits ? "BALANCED" : "OUT OF BALANCE")</td><td></td></tr>
+    </tbody>
+</table>
+<p class="dim">EFFECT: A DEBIT INCREASES ASSETS AND EXPENSES; A CREDIT INCREASES LIABILITIES, EQUITY AND REVENUE.</p>
+
+@if (j.Source == JournalSource.Manual && j.ReversedBy is null && j.ReversalOf is null)
+{
+    <h2>REVERSE THIS JOURNAL</h2>
+    <p>POSTS AN EQUAL AND OPPOSITE JOURNAL. THE ORIGINAL STAYS ON FILE AS AN AUDIT TRAIL.</p>
+    <form method="post" autocomplete="off">
+        <label for="rdate" class="cy">REVERSAL DATE ===&gt;</label>
+        <input id="rdate" class="fld w10" asp-for="ReversalDate" maxlength="10" />
+        <button type="submit" class="btn danger">ENTER=REVERSE</button>
+    </form>
+}

@@ -1,0 +1,44 @@
+@page
+@model YearEndModel
+@{
+    ViewData["ScreenId"] = "GL600";
+    ViewData["Title"] = "YEAR-END CLOSE";
+    ViewData["Exit"] = "/Menu/GL";
+    ViewData["HelpTopic"] = "YEAREND";
+}
+<p class="cy">CLOSES EVERY REVENUE AND EXPENSE BALANCE UP TO THE YEAR-END DATE INTO 3200 RETAINED EARNINGS.</p>
+<form method="get" autocomplete="off">
+    <label for="ye" class="cy">YEAR-END DATE ===&gt;</label>
+    <input id="ye" class="fld w10" name="date" value="@Model.Date" maxlength="10" />
+    <button type="submit" class="btn">ENTER=PREVIEW</button>
+</form>
+@if (Model.Preview is { } p)
+{
+    <h2>PREVIEW: P&amp;L ACCOUNTS AT @Model.Date</h2>
+    @if (p.Count == 0)
+    {
+        <div class="box">NOTHING TO CLOSE - NO REVENUE OR EXPENSE BALANCES AT THIS DATE.</div>
+    }
+    else
+    {
+        var net = p.Sum(r => r.Balance);
+        <table class="grid">
+            <thead><tr><th>ACCT</th><th>NAME</th><th class="n">BALANCE</th><th>CLOSING ENTRY</th></tr></thead>
+            <tbody>
+            @foreach (var r in p)
+            {
+                <tr><td>@r.Account.Code</td><td>@r.Account.Name</td>
+                    <td class="n">@Fmt.Amt(Math.Abs(r.Balance)) @(r.Balance > 0 ? "DR" : "CR")</td>
+                    <td>@(r.Balance > 0 ? "CR" : "DR") @Fmt.Amt(Math.Abs(r.Balance))</td></tr>
+            }
+            <tr class="grand"><td>3200</td><td>RETAINED EARNINGS</td><td class="n">@(net < 0 ? "NET PROFIT" : "NET LOSS") @Fmt.Amt(Math.Abs(net))</td>
+                <td>@(net < 0 ? "CR" : "DR") @Fmt.Amt(Math.Abs(net))</td></tr>
+            </tbody>
+        </table>
+        <form method="post">
+            <input type="hidden" asp-for="Date" />
+            <div class="box warn">AFTER CLOSING, THE PROFIT AND LOSS STARTS FROM ZERO. ONLY CLOSE WHEN YOUR ADJUSTMENTS ARE POSTED.</div>
+            <div class="actions"><button type="submit" class="btn danger">ENTER=CLOSE THE YEAR</button></div>
+        </form>
+    }
+}

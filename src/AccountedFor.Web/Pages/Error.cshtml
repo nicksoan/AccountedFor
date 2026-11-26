@@ -1,0 +1,13 @@
+@page
+@model ErrorModel
+@{
+    ViewData["ScreenId"] = "FIDABEND";
+    ViewData["Title"] = "SYSTEM ERROR";
+}
+<h2 class="rd">*** ABEND S0C7 ***</h2>
+<p>AN UNEXPECTED ERROR OCCURRED WHILE PROCESSING YOUR REQUEST.</p>
+@if (Model.ShowRequestId)
+{
+    <p>REQUEST ID: <span class="wh">@Model.RequestId</span></p>
+}
+<div class="actions"><a class="btn" href="/Menu">RETURN TO MAIN MENU</a></div>
