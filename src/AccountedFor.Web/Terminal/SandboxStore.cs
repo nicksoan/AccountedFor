@@ -28,6 +28,7 @@ public sealed class SandboxStore
     };
 
     private readonly ConcurrentDictionary<string, Entry> _cache = new();
+    private readonly ConcurrentDictionary<string, SemaphoreSlim> _gates = new();
     private readonly string _directory;
     private readonly TimeSpan _idleTimeout;
     private readonly ILogger<SandboxStore> _logger;
@@ -41,6 +42,16 @@ public sealed class SandboxStore
     }
 
     public static bool IsValidId(string? id) => Guid.TryParseExact(id, "N", out _);
+
+    /// <summary>Re-creates the id from its parsed GUID so only canonical, safe file names ever reach the disk.</summary>
+    private static string KeyFor(string id) => Guid.ParseExact(id, "N").ToString("N");
+
+    /// <summary>
+    /// Returns the lock that serialises page requests for an existing sandbox (null if there is no such sandbox),
+    /// so two browser tabs on the same books never read and write them at the same time.
+    /// </summary>
+    public SemaphoreSlim? GateFor(string? id) =>
+        Find(id) is null ? null : _gates.GetOrAdd(KeyFor(id!), _ => new SemaphoreSlim(1, 1));
 
     public string Create(string? operatorId)
     {
@@ -58,7 +69,7 @@ public sealed class SandboxStore
             return null;
         }
 
-        var key = id!.ToLowerInvariant();
+        var key = KeyFor(id!);
         if (_cache.TryGetValue(key, out var entry))
         {
             entry.Touch();
@@ -82,7 +93,7 @@ public sealed class SandboxStore
         {
             var result = action(company);
             completedLevel = company.CheckLevelProgress();
-            Save(id.ToLowerInvariant(), company);
+            Save(KeyFor(id), company);
             return result;
         }
     }
@@ -90,7 +101,7 @@ public sealed class SandboxStore
     /// <summary>Wipes a sandbox back to a brand new company, keeping the operator id.</summary>
     public void Reset(string id, string operatorId)
     {
-        var key = id.ToLowerInvariant();
+        var key = KeyFor(id);
         var company = Company.CreateNew(operatorId);
         _cache[key] = new Entry(company);
         Save(key, company);

@@ -150,6 +150,19 @@ public class GeneralLedgerTests
     }
 
     [Fact]
+    public void CloseYear_RejectsDateOnOrBeforeAnEarlierClose()
+    {
+        var company = Company.CreateNew();
+        company.PostJournal(Day, "Cash sale", [new("1000", 800, 0), new("4000", 0, 800)]);
+        company.CloseYear(new DateOnly(2026, 12, 31));
+
+        var ex = Assert.Throws<BookkeepingException>(() => company.CloseYear(Day));
+
+        Assert.Contains("ALREADY CLOSED", ex.Message);
+        Assert.Equal(-800, company.Balance(SystemAccounts.RetainedEarnings));
+    }
+
+    [Fact]
     public void AccountActivity_HasRunningBalance()
     {
         var company = Company.CreateNew();

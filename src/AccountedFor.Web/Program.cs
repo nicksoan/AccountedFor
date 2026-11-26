@@ -1,4 +1,5 @@
 using AccountedFor.Web.Terminal;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,30 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseRouting();
+
+// One request at a time per sandbox: page handlers and views share the sandbox's in-memory books.
+app.Use(async (context, next) =>
+{
+    var isPage = context.GetEndpoint()?.Metadata.GetMetadata<PageActionDescriptor>() is not null;
+    var gate = isPage
+        ? context.RequestServices.GetRequiredService<SandboxStore>().GateFor(context.Request.Cookies[TerminalPageModel.CookieName])
+        : null;
+    if (gate is null)
+    {
+        await next(context);
+        return;
+    }
+
+    await gate.WaitAsync(context.RequestAborted);
+    try
+    {
+        await next(context);
+    }
+    finally
+    {
+        gate.Release();
+    }
+});
 
 app.UseAuthorization();
 

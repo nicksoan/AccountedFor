@@ -228,6 +228,12 @@ public sealed partial class Company
     /// </summary>
     public JournalEntry CloseYear(DateOnly yearEnd)
     {
+        var lastClose = Journals.Where(j => j.Source == JournalSource.YearEnd).Select(j => (DateOnly?)j.Date).Max();
+        if (lastClose is { } closed && yearEnd <= closed)
+        {
+            throw new BookkeepingException($"YEAR ALREADY CLOSED AT {closed:yyyy-MM-dd} - CHOOSE A LATER YEAR-END DATE");
+        }
+
         var balances = Accounts
             .Where(a => a.Type is AccountType.Revenue or AccountType.Expense)
             .Select(a => (Account: a, Balance: Balance(a.Code, yearEnd)))
