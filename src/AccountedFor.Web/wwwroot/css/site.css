@@ -34,6 +34,52 @@ html, body {
     position: relative;
 }
 
+.crt.theme-amber {
+    --green: #ffbf00;
+    --cyan: #ffe066;
+    --white: #fff2cc;
+    --yellow: #ffd700;
+    --blue: #ffc857;
+    --pink: #ffadad;
+    --dim: #aa7f00;
+    --glow: 0 0 2px rgba(255, 191, 0, .45), 0 0 6px rgba(255, 191, 0, .2);
+}
+
+.crt.theme-white {
+    --green: #fff;
+    --cyan: #fff;
+    --white: #fff;
+    --yellow: #fff;
+    --blue: #fff;
+    --pink: #fff;
+    --dim: #bfbfbf;
+    --glow: none;
+}
+
+.crt.theme-cyan {
+    --green: #00ffff;
+    --cyan: #7fffff;
+    --white: #e6ffff;
+    --yellow: #b3ffff;
+    --blue: #66ccff;
+    --pink: #99ccff;
+    --dim: #008c8c;
+    --glow: 0 0 2px rgba(0, 255, 255, .45), 0 0 6px rgba(0, 255, 255, .2);
+}
+
+.crt.no-crt {
+    background: #000;
+}
+
+.crt.no-crt::after {
+    display: none;
+}
+
+.no-crt .terminal {
+    box-shadow: none;
+    text-shadow: none;
+}
+
 .crt::after {
     /* scan lines */
     content: "";

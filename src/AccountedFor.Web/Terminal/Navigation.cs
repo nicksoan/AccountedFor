@@ -21,6 +21,7 @@ public static class Navigation
             new("4", "RPT", "REPORTS", "TRIAL BALANCE, P&L, BALANCE SHEET, RECONCILIATION", "/Menu/RPT"),
             new("5", "TRN", "ACCOUNTED FOR", "TRAINING LEVELS AND DEBIT/CREDIT DRILL", "/Menu/TRN"),
             new("6", "HELP", "TUTORIAL", "DOUBLE-ENTRY BOOKKEEPING EXPLAINED", "/Help"),
+            new("8", "OPT", "DISPLAY OPTIONS", "CRT FILTER AND FONT COLOURS", "/Options"),
             new("9", "SYS", "SANDBOX UTILITIES", "SANDBOX ID, RESET YOUR BOOKS", "/System"),
             new("X", "LOGOFF", "LOG OFF", "END THIS FIDOS SESSION", "/Logoff"),
         ]),

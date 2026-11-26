@@ -1,0 +1,28 @@
+@page
+@model OptionsModel
+@{
+    ViewData["ScreenId"] = "FID800";
+    ViewData["Title"] = "DISPLAY OPTIONS";
+    ViewData["HelpTopic"] = "NAV";
+}
+<h2>DISPLAY OPTIONS</h2>
+<form method="post">
+    <table class="form">
+        <tr>
+            <td class="lbl"><label asp-for="DisableCrt">CRT FILTER</label><span class="dots"></span></td>
+            <td><input asp-for="DisableCrt" /> DISABLE SCAN LINES AND GLOW</td>
+        </tr>
+        <tr>
+            <td class="lbl"><label asp-for="FontColor">FONT COLOUR</label><span class="dots"></span></td>
+            <td>
+                <select asp-for="FontColor" class="fld">
+                    <option value="green">GREEN (DEFAULT)</option>
+                    <option value="amber">AMBER</option>
+                    <option value="white">WHITE</option>
+                    <option value="cyan">CYAN</option>
+                </select>
+            </td>
+        </tr>
+    </table>
+    <div class="actions"><button type="submit" class="btn">ENTER=SAVE OPTIONS</button></div>
+</form>
