@@ -119,6 +119,32 @@ public class TrainingGuideTests
     }
 
     [Fact]
+    public void GuidedScenarios_ProvideOrderedInstructionsForEveryObjective()
+    {
+        var scenarioLevels = LevelCatalog.All.Where(level => level.Scenarios.Count > 0).ToList();
+
+        Assert.NotEmpty(scenarioLevels);
+        foreach (var level in scenarioLevels)
+        {
+            Assert.Equal(level.Objectives.Count, level.Scenarios.Count);
+
+            for (var i = 0; i < level.Scenarios.Count; i++)
+            {
+                var scenario = level.Scenarios[i];
+
+                Assert.Equal(i, scenario.ObjectiveIndex);
+                Assert.NotEmpty(scenario.Situation);
+                Assert.NotEmpty(scenario.Teaching);
+                Assert.NotEmpty(scenario.Instructions);
+
+                var url = TrainingGuide.ObjectiveUrl(level.Number, scenario.ObjectiveIndex);
+                Assert.NotNull(url);
+                Assert.Contains(url, Navigation.Menus.SelectMany(menu => menu.Options).Select(option => option.Url));
+            }
+        }
+    }
+
+    [Fact]
     public void DeadClicObjectives_OpenTheGuidedDrill()
     {
         var level = LevelCatalog.Get(2)!;

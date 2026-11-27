@@ -18,37 +18,88 @@ else if (done)
 {
     <div class="box good">MISSION COMPLETE @c.CompletedLevels[l.Number].ToString("yyyy-MM-dd HH:mm") UTC.</div>
 }
-<p class="cy">BRIEFING</p>
-@foreach (var line in l.Briefing)
+@if (l.Scenarios.Count > 0 && c.IsLevelUnlocked(l.Number))
 {
-    <p class="wh">@line</p>
+    var activeScenarioIndex = l.Scenarios
+        .Select((scenario, index) => new { scenario, index })
+        .FirstOrDefault(item => !l.Objectives[item.scenario.ObjectiveIndex].IsMet(c))?.index ?? -1;
+    <details>
+        <summary class="cy">LESSON BACKGROUND</summary>
+        @foreach (var line in l.Briefing)
+        {
+            <p class="wh">@line</p>
+        }
+    </details>
+    <h2 class="cy">GUIDED SCENARIOS</h2>
+    <ol class="guide-scenarios">
+        @for (var i = 0; i < l.Scenarios.Count; i++)
+        {
+            var scenario = l.Scenarios[i];
+            var complete = l.Objectives[scenario.ObjectiveIndex].IsMet(c);
+            var available = i == activeScenarioIndex;
+            var url = TrainingGuide.ObjectiveUrl(l.Number, scenario.ObjectiveIndex);
+            <li>
+                <h3>SCENARIO @(i + 1) <span class="dim">@(complete ? "COMPLETE" : available ? "YOUR TURN" : "UP NEXT")</span></h3>
+                @if (available || complete)
+                {
+                    <p class="wh">@scenario.Situation</p>
+                    <p>@scenario.Teaching</p>
+                    <ol>
+                        @foreach (var instruction in scenario.Instructions)
+                        {
+                            <li>@instruction</li>
+                        }
+                    </ol>
+                    @if (available && url is not null)
+                    {
+                        <a class="btn" href="@url">OPEN THE SCREEN</a>
+                    }
+                }
+                else if (!complete)
+                {
+                    <p class="dim">Complete the previous scenario to continue.</p>
+                }
+            </li>
+        }
+    </ol>
 }
-<p class="cy">OBJECTIVES</p>
-@if (c.IsLevelUnlocked(l.Number) && l.Number == 2 && !done)
+else
 {
-    <p class="dim">SELECT AN OBJECTIVE TO OPEN GUIDED PRACTICE AT YOUR NEXT STEP.</p>
-}
-<table class="grid">
-    @for (var i = 0; i < l.Objectives.Count; i++)
+    <p class="cy">BRIEFING</p>
+    @foreach (var line in l.Briefing)
     {
-        var o = l.Objectives[i];
-        var met = o.IsMet(c);
-        var url = TrainingGuide.ObjectiveUrl(l.Number, i);
-        <tr>
-            <td>@(met ? "[X]" : "[ ]")</td>
-            <td class="@(met ? "good" : "")">
-                @if (c.IsLevelUnlocked(l.Number) && !met && url is not null)
-                {
-                    <a class="objective-link" href="@url">@o.Text</a>
-                }
-                else
-                {
-                    @o.Text
-                }
-            </td>
-        </tr>
+        <p class="wh">@line</p>
     }
-</table>
+}
+@if (l.Scenarios.Count == 0 || !c.IsLevelUnlocked(l.Number))
+{
+    <p class="cy">OBJECTIVES</p>
+    @if (c.IsLevelUnlocked(l.Number) && l.Number == 2 && !done)
+    {
+        <p class="dim">SELECT AN OBJECTIVE TO OPEN GUIDED PRACTICE AT YOUR NEXT STEP.</p>
+    }
+    <table class="grid">
+        @for (var i = 0; i < l.Objectives.Count; i++)
+        {
+            var o = l.Objectives[i];
+            var met = o.IsMet(c);
+            var url = TrainingGuide.ObjectiveUrl(l.Number, i);
+            <tr>
+                <td>@(met ? "[X]" : "[ ]")</td>
+                <td class="@(met ? "good" : "")">
+                    @if (c.IsLevelUnlocked(l.Number) && !met && url is not null)
+                    {
+                        <a class="objective-link" href="@url">@o.Text</a>
+                    }
+                    else
+                    {
+                        @o.Text
+                    }
+                </td>
+            </tr>
+        }
+    </table>
+}
 <details>
     <summary class="ye">HINTS (CLICK TO REVEAL)</summary>
     @foreach (var h in l.Hints)
