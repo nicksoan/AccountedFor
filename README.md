@@ -45,9 +45,10 @@ Levels are optional. Every screen can be used freely at any time.
 
 ### Learning workspace
 
-Pixel, the terminal mascot, points out where to sign on and how to enter your first
-command. Open **Pixel · Terminal guide** whenever you want navigation help or lesson
-objectives. Choose an unlocked lesson to see its objectives and hints as you work;
+Pixel, the terminal mascot, shows a next step on each screen, from signing on to
+opening your first lesson with the `LEVELS` command. Open **Lesson progress and
+navigation** whenever you want navigation help or the full lesson checklist.
+Choose an unlocked lesson to see its objectives and hints as you work;
 the guide links to relevant screens and back to the briefing. It retains the selected
 lesson when it is completed, with a link to the next current lesson. Use the main menu
 or training links in the guide, or F12 in the terminal, whenever you need to get back.
