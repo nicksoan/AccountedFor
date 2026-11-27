@@ -9,6 +9,56 @@
     var q = c.CurrentDrillQuestion;
     var last = Model.Last;
 }
+@if (Model.ShowGuided)
+{
+    @if (Model.LastGuidedStep is int lastStep)
+    {
+        var step = GuidedDrillCatalog.All[lastStep];
+        <h2>GUIDED PRACTICE - STEP @(lastStep + 1) OF @GuidedDrillCatalog.All.Count</h2>
+        <div class="box @(Model.GuidedCorrect ? "good" : "warn")">
+            <p>@(Model.GuidedCorrect ? "CORRECT!" : "NOT QUITE - TRY AGAIN.")</p>
+            <p>@step.Question</p>
+            @if (Model.GuidedCorrect)
+            {
+                <p>@step.Explanation</p>
+            }
+            else
+            {
+                <p>@step.Teaching</p>
+            }
+        </div>
+        <div class="actions">
+            @if (Model.GuidedCorrect && c.Drill.GuidedStepsCompleted == GuidedDrillCatalog.All.Count)
+            {
+                <a class="btn" href="/Training/Level/3">CONTINUE TO LEVEL 3</a>
+                <a class="btn" href="/Training/Drill">TRY THE FREE DRILL</a>
+            }
+            else
+            {
+                <a class="btn" href="/Training/Drill">@(Model.GuidedCorrect ? "NEXT STEP" : "TRY AGAIN")</a>
+            }
+        </div>
+    }
+    else
+    {
+        var step = GuidedDrillCatalog.All[c.Drill.GuidedStepsCompleted];
+        <h2>GUIDED PRACTICE - STEP @(c.Drill.GuidedStepsCompleted + 1) OF @GuidedDrillCatalog.All.Count</h2>
+        <p>THESE EXAMPLES ARE PRACTICE ONLY; THEY DO NOT POST TO YOUR BOOKS.</p>
+        <p class="wh">@step.Teaching</p>
+        <p class="cy">@step.Question</p>
+        <form method="post" asp-page-handler="Guided">
+            <input type="hidden" name="Step" value="@c.Drill.GuidedStepsCompleted" />
+            <fieldset>
+                <legend>CHOOSE ONE SIDE</legend>
+                <label><input type="radio" name="Side" value="DEBIT" /> DEBIT (DR / LEFT)</label>
+                <label><input type="radio" name="Side" value="CREDIT" /> CREDIT (CR / RIGHT)</label>
+            </fieldset>
+            <div class="actions"><button type="submit" class="btn">ENTER=CHECK ANSWER</button></div>
+        </form>
+    }
+}
+else
+{
 <p>CORRECT <span class="wh">@c.Drill.Correct</span> / ATTEMPTS <span class="wh">@c.Drill.Attempts</span>  STREAK <span class="ye">@c.Drill.Streak</span>  BEST <span class="ye">@c.Drill.BestStreak</span>  <span class="dim">(+5 PTS PER CORRECT ANSWER)</span></p>
 @if (last is not null)
 {
@@ -43,3 +93,4 @@
             <td>@string.Join("  ", group.Select(a => a.Code + " " + a.Name))</td></tr>
     }
 </table>
+}
