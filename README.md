@@ -46,7 +46,7 @@ Levels are optional. Every screen can be used freely at any time.
 ### Learning workspace
 
 Pixel, the terminal mascot, shows a next step on each screen, from signing on to
-opening your first lesson with the `LEVELS` command. Open **Lesson progress and
+opening your first lesson by choosing **5 Tutorial**, then **1 Training Levels**. Open **Lesson progress and
 navigation** whenever you want navigation help or the full lesson checklist.
 Choose an unlocked lesson to see its objectives and hints as you work;
 the guide links to relevant screens and back to the briefing. It retains the selected
@@ -72,7 +72,7 @@ The selected lesson is remembered in this browser for the current sandbox.
 | `YEC` | Year-end close | `AGEDAR` / `AGEDAP` | Aged debtors / creditors |
 | `TB` | Trial balance | `LEVELS` | Training levels |
 | `PL` / `BS` | Profit & loss / balance sheet | `DRILL` | Debit or credit drill |
-| `RECON` | Control account reconciliation | `HELP` | Tutorial |
+| `RECON` | Control account reconciliation | `HELP` | Accounting fundamentals |
 
 ## Running it
 
