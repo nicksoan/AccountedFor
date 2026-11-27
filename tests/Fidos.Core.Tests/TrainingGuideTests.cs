@@ -144,6 +144,18 @@ public class TrainingGuideTests
         }
     }
 
+    [Fact]
+    public void DeadClicObjectives_OpenTheGuidedDrill()
+    {
+        var level = LevelCatalog.Get(2)!;
+
+        Assert.Equal(GuidedDrillCatalog.All.Count, level.Objectives.Count);
+        for (var i = 0; i < level.Objectives.Count; i++)
+        {
+            Assert.Equal("/Training/Drill", TrainingGuide.ObjectiveUrl(level.Number, i));
+        }
+    }
+
     [Theory]
     [InlineData("LEVELS", "/Training")]
     [InlineData("HELP", "/Help")]

@@ -281,6 +281,7 @@ table.grid td { padding: 0 1ch 0 0; vertical-align: top; }
 table.grid tr.total td { color: var(--white); border-top: 1px solid var(--dim); }
 table.grid tr.grand td { color: var(--yellow); border-top: 1px double var(--green); border-bottom: 3px double var(--green); }
 table.grid tbody tr:hover td { background: rgba(51, 255, 102, .08); }
+.objective-link { text-decoration: underline; }
 
 table.form td { padding: .1em 1ch .1em 0; vertical-align: baseline; }
 table.form td.lbl { color: var(--cyan); white-space: nowrap; }

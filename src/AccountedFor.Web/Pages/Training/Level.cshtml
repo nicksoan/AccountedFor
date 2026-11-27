@@ -8,9 +8,6 @@
     ViewData["Exit"] = "/Training";
     ViewData["HelpTopic"] = "LEVELS";
     var done = c.IsLevelComplete(l.Number);
-    var activeScenarioIndex = l.Scenarios
-        .Select((scenario, index) => new { scenario, index })
-        .FirstOrDefault(item => !l.Objectives[item.scenario.ObjectiveIndex].IsMet(c))?.index ?? -1;
 }
 <h2>LEVEL @l.Number - @l.Title <span class="dim">(@l.Concept, @l.Points PTS)</span></h2>
 @if (!c.IsLevelUnlocked(l.Number))
@@ -23,6 +20,9 @@ else if (done)
 }
 @if (l.Scenarios.Count > 0 && c.IsLevelUnlocked(l.Number))
 {
+    var activeScenarioIndex = l.Scenarios
+        .Select((scenario, index) => new { scenario, index })
+        .FirstOrDefault(item => !l.Objectives[item.scenario.ObjectiveIndex].IsMet(c))?.index ?? -1;
     <details>
         <summary class="cy">LESSON BACKGROUND</summary>
         @foreach (var line in l.Briefing)
@@ -70,12 +70,33 @@ else
     {
         <p class="wh">@line</p>
     }
+}
+@if (l.Scenarios.Count == 0 || !c.IsLevelUnlocked(l.Number))
+{
     <p class="cy">OBJECTIVES</p>
+    @if (c.IsLevelUnlocked(l.Number) && l.Number == 2 && !done)
+    {
+        <p class="dim">SELECT AN OBJECTIVE TO OPEN GUIDED PRACTICE AT YOUR NEXT STEP.</p>
+    }
     <table class="grid">
-        @foreach (var o in l.Objectives)
+        @for (var i = 0; i < l.Objectives.Count; i++)
         {
+            var o = l.Objectives[i];
             var met = o.IsMet(c);
-            <tr><td>@(met ? "[X]" : "[ ]")</td><td class="@(met ? "good" : "")">@o.Text</td></tr>
+            var url = TrainingGuide.ObjectiveUrl(l.Number, i);
+            <tr>
+                <td>@(met ? "[X]" : "[ ]")</td>
+                <td class="@(met ? "good" : "")">
+                    @if (c.IsLevelUnlocked(l.Number) && !met && url is not null)
+                    {
+                        <a class="objective-link" href="@url">@o.Text</a>
+                    }
+                    else
+                    {
+                        @o.Text
+                    }
+                </td>
+            </tr>
         }
     </table>
 }
