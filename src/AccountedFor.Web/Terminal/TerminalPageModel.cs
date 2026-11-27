@@ -43,10 +43,10 @@ public abstract class TerminalPageModel(SandboxStore store) : PageModel
         Company = company;
         ViewData["Company"] = company;
 
-        if (Request.Cookies.TryGetValue(TrainingGuide.CookieName, out var selection))
+        if (Request.Cookies.TryGetValue(TrainingGuide.CookieName, out var selection) &&
+            TrainingGuide.LegacySelectedLevel(company, SandboxId, selection) is { } selected)
         {
-            if (company.SelectedTrainingLevel is null &&
-                TrainingGuide.LegacySelectedLevel(company, SandboxId, selection) is { } selected)
+            if (company.SelectedTrainingLevel is null)
             {
                 TryUpdate(c => c.SelectedTrainingLevel = selected.Number);
             }
