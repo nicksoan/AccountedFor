@@ -52,6 +52,20 @@ public class TrainingGuideTests
         Assert.Equal(2, TrainingGuide.SelectedLevel(company, "sandbox", "sandbox:1")?.Number);
     }
 
+    [Fact]
+    public void Selection_AfterAllLessonsAreComplete_CanStillReviewASelectedLesson()
+    {
+        var company = Company.CreateNew();
+        foreach (var level in LevelCatalog.All)
+        {
+            company.CompletedLevels[level.Number] = DateTime.UtcNow;
+        }
+
+        Assert.Null(TrainingGuide.SelectedLevel(company, "sandbox", null));
+        company.SelectedTrainingLevel = 1;
+        Assert.Equal(1, TrainingGuide.SelectedLevel(company, "sandbox", null)?.Number);
+    }
+
     [Theory]
     [InlineData(0)]
     [InlineData(2)]
