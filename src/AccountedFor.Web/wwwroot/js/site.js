@@ -15,10 +15,19 @@
     });
 
     // Prefer the command line, or the first screen input when it is unavailable.
-    const first = document.getElementById("cmd")
+    const command = document.getElementById("cmd");
+    const first = command
         || document.querySelector("main [autofocus]")
         || document.querySelector("main input.fld:not([type=hidden]):not([readonly]), main select.fld");
     first?.focus({ preventScroll: true });
+
+    if (command) {
+        document.addEventListener("click", (e) => {
+            if (!e.target.closest("a, button, input, select, textarea, label, summary, [contenteditable]")) {
+                command.focus({ preventScroll: true });
+            }
+        });
+    }
 
     const guide = document.querySelector('[data-remember-guide="true"]');
     if (guide) {
