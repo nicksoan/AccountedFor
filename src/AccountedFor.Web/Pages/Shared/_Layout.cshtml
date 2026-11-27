@@ -10,6 +10,8 @@
     var pfKeys = ViewData["PfKeys"] as IEnumerable<PfKey> ?? [];
     var path = Context.Request.Path.Value;
     var level = company?.CurrentLevel;
+    var guideLevel = company is null ? null : ViewData["GuideLevel"] as Level ??
+        TrainingGuide.SelectedLevel(company, Context.Request.Cookies[TerminalPageModel.CookieName], Context.Request.Cookies[TrainingGuide.CookieName]);
     var disableCrt = Context.Request.Cookies[DisplayPreferences.DisableCrtCookie] == "1";
     var fontColor = DisplayPreferences.FontColorOrDefault(Context.Request.Cookies[DisplayPreferences.FontColorCookie]);
 }
@@ -22,12 +24,88 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
+<div class="workspace">
+    <aside id="guide" class="guide" aria-label="Accounted For guide">
+        <div class="guide-brand">ACCOUNTED FOR <span> / LEARNING WORKSPACE</span></div>
+        <h1>Your FIDOS guide</h1>
+        <p>Learn bookkeeping in a practice ERP. The terminal is your workspace; this guide stays with you as you explore.</p>
+        <p><a href="#terminal">Skip to terminal</a></p>
+        @if (company is null)
+        {
+            <section aria-labelledby="signon-guide">
+                <h2 id="signon-guide">01 / Sign on</h2>
+                <p>Choose a USERID of 1–8 letters or digits, then press ENTER=LOGON. No password is needed.</p>
+                <p>Leave the sandbox ID blank for a new practice sandbox, or enter an ID to resume one. Never use real financial data.</p>
+                <h2>02 / Find your training</h2>
+                <p>On the main menu choose 5 ACCOUNTED FOR, then 1 TRAINING LEVELS. Select level 1 to begin.</p>
+            </section>
+        }
+        else
+        {
+            <nav class="guide-nav" aria-label="Workspace navigation">
+                <a href="/Menu">Main menu</a>
+                <a href="/Training">Training levels</a>
+                <a href="/Help">Bookkeeping help</a>
+            </nav>
+            @if (string.Equals(path, "/Menu", StringComparison.OrdinalIgnoreCase) || string.Equals(path, "/Menu/MAIN", StringComparison.OrdinalIgnoreCase))
+            {
+                <p class="guide-tip"><strong>Find training:</strong> choose 5 ACCOUNTED FOR here, then 1 TRAINING LEVELS. You can click an option or type its number on the command line and press Enter.</p>
+            }
+            else if (string.Equals(path, "/Menu/TRN", StringComparison.OrdinalIgnoreCase))
+            {
+                <p class="guide-tip"><strong>Next:</strong> choose 1 TRAINING LEVELS, then select an unlocked lesson.</p>
+            }
+            else if (string.Equals(path, "/Training", StringComparison.OrdinalIgnoreCase))
+            {
+                <p class="guide-tip"><strong>Choose a lesson:</strong> select an unlocked mission to read its briefing. Its objectives will remain here while you work.</p>
+            }
+            @if (guideLevel is not null)
+            {
+                <section aria-labelledby="lesson-guide">
+                    <h2 id="lesson-guide">Lesson @guideLevel.Number / @guideLevel.Title</h2>
+                    <p>@guideLevel.Concept</p>
+                    <ul class="guide-objectives">
+                        @for (var i = 0; i < guideLevel.Objectives.Count; i++)
+                        {
+                            var objective = guideLevel.Objectives[i];
+                            var met = objective.IsMet(company);
+                            var url = TrainingGuide.ObjectiveUrl(guideLevel.Number, i);
+                            <li>
+                                <span>@(met ? "✓ Complete" : "○ To do")</span>
+                                @objective.Text
+                                @if (!met && url is not null) { <a href="@url">Open screen</a> }
+                            </li>
+                        }
+                    </ul>
+                    <details>
+                        <summary>Show lesson hints</summary>
+                        @foreach (var hint in guideLevel.Hints) { <p>@hint</p> }
+                    </details>
+                    <p><a href="/Training/Level/@guideLevel.Number">Return to lesson briefing</a></p>
+                    @if (level is not null && level.Number != guideLevel.Number)
+                    {
+                        <p><a href="/Training/Level/@level.Number">Continue to current lesson @level.Number</a></p>
+                    }
+                    else if (company.IsLevelComplete(guideLevel.Number) && level is null)
+                    {
+                        <p>All lessons complete. You can continue exploring freely.</p>
+                    }
+                </section>
+            }
+            else
+            {
+                <p>All lessons complete. <a href="/Training">Review training levels</a> or explore freely.</p>
+            }
+            <p class="guide-tip">Need your bearings? F12 returns to the main menu; F3 exits the current screen. You can also click the PF key labels below the terminal.</p>
+        }
+    </aside>
 <div class="crt @(disableCrt ? "no-crt" : null) theme-@fontColor">
-    <div class="terminal">
+    <div id="terminal" class="terminal">
         <div class="row head">
             <span><span class="hi">FIDOS</span> <span class="cy">@screenId</span></span>
             <span class="title">@title</span>
             <span id="clock" class="cy">@DateTime.Now.ToString("yyyy-MM-dd HH:mm")</span>
+        </div>
         </div>
         @if (company is not null)
         {

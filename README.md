@@ -43,6 +43,15 @@ only be posted through AR/AP, so the sub-ledgers always reconcile to the general
 
 Levels are optional. Every screen can be used freely at any time.
 
+### Learning workspace
+
+The guide beside the terminal explains how to sign on and find the training levels.
+Choose an unlocked lesson to keep its objectives and hints beside you as you work;
+the guide links to relevant screens and back to the briefing. It retains the selected
+lesson when it is completed, with a link to the next current lesson. Use the main menu
+or training links in the guide, or F12 in the terminal, whenever you need to get back.
+The selected lesson is remembered in this browser for the current sandbox.
+
 ## Using the terminal
 
 - **Command line** (`COMMAND ===>`): type a menu option number, a transaction code, or a
