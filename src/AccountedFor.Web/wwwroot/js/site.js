@@ -14,10 +14,11 @@
         }
     });
 
-    // Place the cursor in the first input field on the screen, otherwise on the command line.
-    const first = document.querySelector("main [autofocus]")
+    // Prefer the command line, or the first screen input when it is unavailable.
+    const first = document.getElementById("cmd")
+        || document.querySelector("main [autofocus]")
         || document.querySelector("main input.fld:not([type=hidden]):not([readonly]), main select.fld");
-    (first || document.getElementById("cmd"))?.focus({ preventScroll: true });
+    first?.focus({ preventScroll: true });
 
     // Clock.
     const clock = document.getElementById("clock");
