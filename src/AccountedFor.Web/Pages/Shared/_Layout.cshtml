@@ -27,6 +27,74 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
+<header class="task-bar">
+    <details class="task-log" data-remember-guide="true">
+        <summary aria-label="Task log">
+            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="4" y="3" width="16" height="18" rx="2" />
+                <path d="M8 8h1m3 0h5M8 12h1m3 0h5M8 16h1m3 0h5" />
+            </svg>
+            <span>Task log</span>
+        </summary>
+        <div class="task-log-panel guide">
+            @if (company is null)
+            {
+                <p><a href="/">Sign on</a> to see your tutorial tasks.</p>
+            }
+            else
+            {
+                <nav class="guide-nav" aria-label="Workspace navigation">
+                    <a href="/Menu">Main menu</a>
+                    <a href="/Training">Training levels</a>
+                    <a href="/Help">Accounting fundamentals</a>
+                </nav>
+                @if (guideLevel is not null)
+                {
+                    <section aria-labelledby="lesson-guide">
+                        <h2 id="lesson-guide">Tutorial level @guideLevel.Number / @guideLevel.Title</h2>
+                        <p>@guideLevel.Concept</p>
+                        <p>@guideLevel.Objectives.Count(o => o.IsMet(company)) / @guideLevel.Objectives.Count objectives complete</p>
+                        <details>
+                            <summary>Show lesson briefing</summary>
+                            @foreach (var line in guideLevel.Briefing) { <p>@line</p> }
+                        </details>
+                        <ul class="guide-objectives">
+                            @for (var i = 0; i < guideLevel.Objectives.Count; i++)
+                            {
+                                var objective = guideLevel.Objectives[i];
+                                var met = objective.IsMet(company);
+                                var url = TrainingGuide.ObjectiveUrl(guideLevel.Number, i);
+                                <li>
+                                    <span>@(met ? "✓ Complete" : "○ To do")</span>
+                                    @objective.Text
+                                    @if (!met && url is not null) { <a href="@url">Open screen</a> }
+                                </li>
+                            }
+                        </ul>
+                        <details>
+                            <summary>Show lesson hints</summary>
+                            @foreach (var hint in guideLevel.Hints) { <p>@hint</p> }
+                        </details>
+                        <p><a href="/Training/Level/@guideLevel.Number">Return to lesson briefing</a></p>
+                        @if (level is not null && level.Number != guideLevel.Number)
+                        {
+                            <p><a href="/Training/Level/@level.Number">Continue to current lesson @level.Number</a></p>
+                        }
+                        else if (company.IsLevelComplete(guideLevel.Number) && level is null)
+                        {
+                            <p>All lessons complete. You can continue exploring freely.</p>
+                        }
+                    </section>
+                }
+                else
+                {
+                    <p>All lessons complete. <a href="/Training">Review training levels</a> or explore freely.</p>
+                }
+                <p>Type <code>HELP</code> in COMMAND for accounting fundamentals. F12 returns to the main menu; F3 exits the current screen. You can also click the PF key labels below the terminal.</p>
+            }
+        </div>
+    </details>
+</header>
 <div class="workspace">
     <aside id="guide" class="guide" aria-label="Accounted For guide">
         <div class="guide-heading"><span class="mascot" aria-hidden="true">›_</span> Pixel · Terminal guide</div>
@@ -83,57 +151,6 @@
                 <p class="guide-tip"><strong>Next · Training</strong><br /><a href="/Training">Choose a lesson</a> or explore the terminal freely.</p>
             }
 
-            <details data-remember-guide="true">
-                <summary>Training log and navigation</summary>
-                <nav class="guide-nav" aria-label="Workspace navigation">
-                    <a href="/Menu">Main menu</a>
-                    <a href="/Training">Training levels</a>
-                    <a href="/Help">Accounting fundamentals</a>
-                </nav>
-            @if (guideLevel is not null)
-            {
-                <section aria-labelledby="lesson-guide">
-                    <h2 id="lesson-guide">Lesson @guideLevel.Number / @guideLevel.Title</h2>
-                    <p>@guideLevel.Concept</p>
-                    <p>@guideLevel.Objectives.Count(o => o.IsMet(company)) / @guideLevel.Objectives.Count objectives complete</p>
-                    <details>
-                        <summary>Show lesson briefing</summary>
-                        @foreach (var line in guideLevel.Briefing) { <p>@line</p> }
-                    </details>
-                    <ul class="guide-objectives">
-                        @for (var i = 0; i < guideLevel.Objectives.Count; i++)
-                        {
-                            var objective = guideLevel.Objectives[i];
-                            var met = objective.IsMet(company);
-                            var url = TrainingGuide.ObjectiveUrl(guideLevel.Number, i);
-                            <li>
-                                <span>@(met ? "✓ Complete" : "○ To do")</span>
-                                @objective.Text
-                                @if (!met && url is not null) { <a href="@url">Open screen</a> }
-                            </li>
-                        }
-                    </ul>
-                    <details>
-                        <summary>Show lesson hints</summary>
-                        @foreach (var hint in guideLevel.Hints) { <p>@hint</p> }
-                    </details>
-                    <p><a href="/Training/Level/@guideLevel.Number">Return to lesson briefing</a></p>
-                    @if (level is not null && level.Number != guideLevel.Number)
-                    {
-                        <p><a href="/Training/Level/@level.Number">Continue to current lesson @level.Number</a></p>
-                    }
-                    else if (company.IsLevelComplete(guideLevel.Number) && level is null)
-                    {
-                        <p>All lessons complete. You can continue exploring freely.</p>
-                    }
-                </section>
-            }
-            else
-            {
-                <p>All lessons complete. <a href="/Training">Review training levels</a> or explore freely.</p>
-            }
-            <p>Type <code>HELP</code> in COMMAND for accounting fundamentals. F12 returns to the main menu; F3 exits the current screen. You can also click the PF key labels below the terminal.</p>
-            </details>
         }
     </aside>
 <div class="crt @(disableCrt ? "no-crt" : null) theme-@fontColor">
