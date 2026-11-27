@@ -121,9 +121,7 @@ public class TrainingGuideTests
     [Fact]
     public void GuidedScenarios_ProvideOrderedInstructionsForEveryObjective()
     {
-        var scenarioLevels = LevelCatalog.All.Where(level => level.Scenarios.Count > 0).ToList();
-
-        Assert.NotEmpty(scenarioLevels);
+        var scenarioLevels = LevelCatalog.All.Where(level => level.Number != 2);
         foreach (var level in scenarioLevels)
         {
             Assert.Equal(level.Objectives.Count, level.Scenarios.Count);
@@ -145,19 +143,20 @@ public class TrainingGuideTests
     }
 
     [Fact]
-    public void DeadClicObjectives_OpenTheGuidedDrill()
+    public void DeadClicObjectives_OpenThePracticeBooks()
     {
         var level = LevelCatalog.Get(2)!;
 
-        Assert.Equal(GuidedDrillCatalog.All.Count, level.Objectives.Count);
+        Assert.Equal(PracticeCatalog.All.Count, level.Objectives.Count);
         for (var i = 0; i < level.Objectives.Count; i++)
         {
-            Assert.Equal("/Training/Drill", TrainingGuide.ObjectiveUrl(level.Number, i));
+            Assert.Equal("/Training/Practice", TrainingGuide.ObjectiveUrl(level.Number, i));
         }
     }
 
     [Theory]
     [InlineData("LEVELS", "/Training")]
+    [InlineData("PRACTICE", "/Training/Practice")]
     [InlineData("HELP", "/Help")]
     public void GuideCommands_OpenTheirAdvertisedDestinations(string command, string destination)
     {

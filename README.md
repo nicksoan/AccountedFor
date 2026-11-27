@@ -17,7 +17,7 @@ financial data.
 | **Accounts Receivable** (sales ledger) | Customers, sales invoices (with VAT), customer receipts, customer statements, invoice list, aged debtors |
 | **Accounts Payable** (purchase ledger) | Suppliers, purchase invoices (with VAT), supplier payments, statements, aged creditors |
 | **Reports** | Trial balance, profit & loss, balance sheet, sub-ledger to control account reconciliation |
-| **Accounted For training** | 13 optional levels with briefings, objectives and hints, plus a score and rank, and a quick-fire "Debit or Credit?" drill |
+| **Accounted For training** | 13 optional missions, guided double-entry practice books, a score and rank, and an optional quick-fire quiz |
 | **Help** | Built-in tutorial on double entry, every screen, and how sub-ledgers feed the GL |
 
 Each posting shows how a business event becomes a journal. For example, a sales invoice
@@ -48,8 +48,14 @@ Levels are optional. Every screen can be used freely at any time.
 Pixel, the terminal mascot, shows a next step on each screen, from signing on to
 opening your first lesson by choosing **5 Tutorial**, then **1 Training Levels**. Open **Training log and
 navigation** whenever you want the lesson briefing, checklist, or navigation help.
-Choose an unlocked lesson to see its objectives and hints as you work;
-the guide links to relevant screens and back to the briefing. It retains the selected
+Choose an unlocked lesson to see the scenario, why it matters, and what to do next.
+In **Level 2: DEAD CLIC**, open **Practice Books** to post an owner investment, a sale
+paid directly into the bank, and an expense. Enter the debit and credit for each,
+then inspect the posted journals and see the balances change. You can retry without
+penalty. These example entries never touch your main sandbox books, and your mission
+progress is saved when you leave. The other lessons use your main sandbox books.
+
+The guide links to relevant screens and back to the briefing. It retains the selected
 lesson when it is completed, with a link to the next current lesson. Use the main menu
 or training links in the guide, or F12 in the terminal, whenever you need to get back.
 The selected lesson is saved with the sandbox, including when you reopen it on another device.
@@ -71,6 +77,7 @@ The selected lesson is saved with the sandbox, including when you reopen it on a
 | `TACCT` | T-account inquiry | `CUST` / `SUPP` | Customer / supplier list |
 | `YEC` | Year-end close | `AGEDAR` / `AGEDAP` | Aged debtors / creditors |
 | `TB` | Trial balance | `LEVELS` | Training levels |
+| `PRACTICE` | Level 2 practice books | | |
 | `PL` / `BS` | Profit & loss / balance sheet | `DRILL` | Debit or credit drill |
 | `RECON` | Control account reconciliation | `HELP` | Accounting fundamentals |
 

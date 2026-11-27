@@ -5,7 +5,6 @@ public sealed record DrillQuestion(int Id, string Scenario, string DebitCode, st
 public sealed class DrillState
 {
     public int CurrentQuestion { get; set; } = 1;
-    public int GuidedStepsCompleted { get; set; }
     public int Attempts { get; set; }
     public int Correct { get; set; }
     public int Streak { get; set; }
@@ -13,39 +12,6 @@ public sealed class DrillState
 }
 
 public sealed record DrillResult(DrillQuestion Question, bool IsCorrect, bool DebitCorrect, bool CreditCorrect);
-
-public sealed record GuidedDrillStep(string Objective, string Teaching, string Question, string Answer, string Explanation);
-
-public static class GuidedDrillCatalog
-{
-    public static IReadOnlyList<GuidedDrillStep> All { get; } =
-    [
-        new("PRACTISE AN ASSET INCREASE",
-            "DEBIT (DR) MEANS LEFT AND CREDIT (CR) MEANS RIGHT. BANK IS AN ASSET: MONEY THE BUSINESS OWNS. AN INCREASE IN AN ASSET IS A DEBIT.",
-            "THE OWNER PUTS 10,000 INTO THE BUSINESS BANK. BANK 1000 GOES UP. IS BANK DEBITED OR CREDITED?", "DEBIT",
-            "DR 1000 BANK 10,000 INCREASES THE ASSET. THE MATCHING CR 3000 CAPITAL 10,000 RECORDS THE OWNER'S INVESTMENT."),
-        new("PRACTISE A CAPITAL INCREASE",
-            "CAPITAL IS THE OWNER'S STAKE IN THE BUSINESS, A TYPE OF EQUITY. AN INCREASE IN CAPITAL IS A CREDIT.",
-            "FOR THE SAME 10,000 INVESTMENT, CAPITAL 3000 GOES UP. IS CAPITAL DEBITED OR CREDITED?", "CREDIT",
-            "CR 3000 CAPITAL 10,000 INCREASES EQUITY. IT MATCHES DR 1000 BANK 10,000: BOTH SIDES ARE EQUAL."),
-        new("PRACTISE AN EXPENSE INCREASE",
-            "AN EXPENSE IS A COST OF RUNNING THE BUSINESS. LIKE ASSETS, AN INCREASE IN AN EXPENSE IS A DEBIT.",
-            "NORTHSEA PAYS 45 FOR STATIONERY. OFFICE SUPPLIES 6300 INCREASES. IS IT DEBITED OR CREDITED?", "DEBIT",
-            "DR 6300 OFFICE SUPPLIES 45 RECORDS THE COST. THE MATCHING CR 1000 BANK 45 RECORDS THE MONEY LEAVING."),
-        new("PRACTISE AN ASSET DECREASE",
-            "TO DECREASE AN ACCOUNT, USE THE OPPOSITE SIDE FROM AN INCREASE. AN ASSET INCREASES WITH A DEBIT, SO IT DECREASES WITH A CREDIT.",
-            "FOR THE SAME 45 STATIONERY PAYMENT, BANK 1000 GOES DOWN. IS BANK DEBITED OR CREDITED?", "CREDIT",
-            "CR 1000 BANK 45 DECREASES THE ASSET. IT MATCHES DR 6300 OFFICE SUPPLIES 45."),
-        new("PRACTISE A LIABILITY INCREASE",
-            "A LIABILITY IS MONEY THE BUSINESS OWES. AN INCREASE IN A LIABILITY IS A CREDIT.",
-            "THE BANK LENDS NORTHSEA 5,000. BANK LOAN 2300 GOES UP. IS THE LOAN DEBITED OR CREDITED?", "CREDIT",
-            "CR 2300 BANK LOAN 5,000 INCREASES THE LIABILITY. THE MATCHING DR 1000 BANK 5,000 RECORDS THE MONEY RECEIVED."),
-        new("PRACTISE AN INCOME INCREASE",
-            "INCOME (ALSO CALLED REVENUE) IS EARNED FROM SALES. AN INCREASE IN INCOME IS A CREDIT.",
-            "NORTHSEA SELLS GOODS FOR 80 PAID INTO THE BANK (IGNORE VAT). SALES 4000 GOES UP. IS SALES DEBITED OR CREDITED?", "CREDIT",
-            "CR 4000 SALES 80 INCREASES INCOME. THE MATCHING DR 1000 BANK 80 RECORDS THE MONEY RECEIVED."),
-    ];
-}
 
 /// <summary>"Debit or credit?" practice questions using the seeded FIDOS chart of accounts.</summary>
 public static class DrillCatalog

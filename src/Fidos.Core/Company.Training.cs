@@ -45,20 +45,19 @@ public sealed partial class Company
     [JsonIgnore]
     public DrillQuestion CurrentDrillQuestion => DrillCatalog.Get(Drill.CurrentQuestion);
 
-    public bool AnswerGuidedDrill(int step, string? answer)
+    public int PracticeMissionsCompleted { get; set; }
+
+    public JournalEntry PostPracticeEntry(int missionIndex, string? debitCode, decimal debit, string? creditCode, decimal credit)
     {
-        if (step != Drill.GuidedStepsCompleted || step < 0 || step >= GuidedDrillCatalog.All.Count)
+        if (!IsLevelUnlocked(2) || missionIndex != PracticeMissionsCompleted ||
+            missionIndex < 0 || missionIndex >= PracticeCatalog.All.Count)
         {
-            throw new BookkeepingException("THIS PRACTICE STEP IS NO LONGER CURRENT");
+            throw new BookkeepingException("This practice mission is not current. Reopen the practice books to continue.");
         }
 
-        var correct = string.Equals(answer?.Trim(), GuidedDrillCatalog.All[step].Answer, StringComparison.OrdinalIgnoreCase);
-        if (correct)
-        {
-            Drill.GuidedStepsCompleted++;
-        }
-
-        return correct;
+        var entry = PracticeCatalog.PostEntry(missionIndex, debitCode, debit, creditCode, credit);
+        PracticeMissionsCompleted++;
+        return entry;
     }
 
     /// <summary>Checks an answer to the current drill question and moves on to a different random question.</summary>

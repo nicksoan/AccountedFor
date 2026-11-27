@@ -36,7 +36,7 @@ public static class LevelCatalog
 {
     public static IReadOnlyList<Level> All { get; } =
     [
-        new(1, "FIRST LOGON", "THE CHART OF ACCOUNTS",
+        new Level(1, "FIRST LOGON", "THE CHART OF ACCOUNTS",
             [
                 "WELCOME TO NORTHSEA. YOU HAVE JUST JOINED THE ACCOUNTS DEPARTMENT AND BEEN GIVEN ACCESS TO FIDOS, THE COMPANY ERP.",
                 "EVERY BUSINESS KEEPS A LIST OF 'LEDGER ACCOUNTS' CALLED THE CHART OF ACCOUNTS. EACH ACCOUNT IS ONE OF FIVE TYPES: ASSETS, LIABILITIES, EQUITY, REVENUE AND EXPENSES.",
@@ -48,16 +48,27 @@ public static class LevelCatalog
                 new("OPEN ANY ACCOUNT IN T-ACCOUNT INQUIRY (CODE TACCT)", c => c.HasMilestone(Milestones.AccountInquiry)),
             ],
             ["TYPE COA ON THE COMMAND LINE AND PRESS ENTER.", "FROM THE CHART, SELECT AN ACCOUNT CODE TO OPEN ITS T-ACCOUNT."],
-            50),
+            50)
+        {
+            Scenarios =
+            [
+                new("It's your first day at NorthSea. Find where the business keeps track of money in the bank.",
+                    "The chart of accounts is the list of places the business records its money, what it owes, what it earns and what it spends.",
+                    ["Open the chart of accounts and find 1000 BANK. Look for its account type: asset."], 0),
+                new("Open the Bank ledger before recording your first transaction.",
+                    "The T-account shows entries on two sides: debits on the left and credits on the right. Empty books have no entries yet.",
+                    ["Select account 1000 in the chart to open its T-account. Find its debit and credit columns."], 1),
+            ],
+        },
         new(2, "DEAD CLIC", "DEBITS AND CREDITS",
             [
                 "DEBIT (DR) IS THE LEFT SIDE OF AN ACCOUNT; CREDIT (CR) IS THE RIGHT. THEY DO NOT SIMPLY MEAN GOOD OR BAD.",
                 "EVERY TRANSACTION HAS EQUAL TOTAL DEBITS AND CREDITS: THIS IS DOUBLE ENTRY.",
-                "OPEN THE DRILL FOR GUIDED PRACTICE, ONE SMALL EXAMPLE AT A TIME. THESE EXERCISES DO NOT POST TO YOUR BOOKS.",
-                "YOU WILL POST AND INSPECT A REAL PRACTICE JOURNAL IN THE NEXT LEVEL.",
+                "OPEN THE PRACTICE BOOKS AND POST BOTH SIDES OF EACH TRANSACTION, ONE SMALL EXAMPLE AT A TIME.",
+                "THE EXAMPLE JOURNALS AND BALANCES STAY SEPARATE FROM YOUR MAIN SANDBOX BOOKS.",
             ],
-            GuidedDrillCatalog.All.Select((step, index) => new Objective(step.Objective + " (CODE DRILL)",
-                c => c.Drill.GuidedStepsCompleted > index || c.Drill.Correct >= 5 || c.IsLevelComplete(2))).ToArray(),
+            PracticeCatalog.All.Select((mission, index) => new Objective($"POST: {mission.Title.ToUpperInvariant()}",
+                c => c.PracticeMissionsCompleted > index || c.IsLevelComplete(2))).ToArray(),
             ["DEAD CLIC: DEBITS INCREASE DRAWINGS, EXPENSES AND ASSETS; CREDITS INCREASE LIABILITIES, INCOME AND CAPITAL.",
              "TO DECREASE AN ACCOUNT, USE THE OPPOSITE SIDE. DRAWINGS REDUCE EQUITY, SO THEY INCREASE WITH A DEBIT."],
             100),
@@ -226,7 +237,7 @@ public static class LevelCatalog
                     1),
             ],
         },
-        new(9, "PROVE IT", "TRIAL BALANCE AND CONTROL ACCOUNTS",
+        new Level(9, "PROVE IT", "TRIAL BALANCE AND CONTROL ACCOUNTS",
             [
                 "BECAUSE EVERY DEBIT HAS A MATCHING CREDIT, THE SUM OF ALL DEBIT BALANCES ALWAYS EQUALS THE SUM OF ALL CREDIT BALANCES.",
                 "THE TRIAL BALANCE LISTS EVERY ACCOUNT TO PROVE THIS. IT WILL NOT CATCH EVERYTHING - A BALANCED ENTRY TO THE WRONG ACCOUNT STILL BALANCES!",
@@ -237,9 +248,20 @@ public static class LevelCatalog
                 new("RUN THE TRIAL BALANCE (CODE TB)", c => c.HasMilestone(Milestones.TrialBalance)),
                 new("RUN THE CONTROL ACCOUNT RECONCILIATION (CODE RECON)", c => c.HasMilestone(Milestones.Reconciliation)),
             ],
-            ["TRY POSTING A JOURNAL TO 1100 AND READ THE ERROR MESSAGE."],
-            100),
-        new(10, "OOPS!", "CORRECTING ERRORS",
+            ["EQUAL TOTALS DO NOT PROVE THAT EVERY ENTRY USED THE RIGHT ACCOUNTS."],
+            100)
+        {
+            Scenarios =
+            [
+                new("Check whether NorthSea's books balance after the recent postings.",
+                    "The trial balance adds up every account balance on its debit or credit side.",
+                    ["Open Trial Balance and compare the debit and credit grand totals."], 0),
+                new("Check whether the customer and supplier ledgers agree with the general ledger.",
+                    "A control account summarises a whole sub-ledger. Its balance should match the total of the individual customer or supplier balances.",
+                    ["Open Control Account Reconciliation. Compare the general-ledger and sub-ledger totals and look for a difference of zero."], 1),
+            ],
+        },
+        new Level(10, "OOPS!", "CORRECTING ERRORS",
             [
                 "IN A REAL LEDGER YOU NEVER DELETE OR EDIT A POSTED ENTRY - THE AUDIT TRAIL MUST STAY INTACT.",
                 "INSTEAD YOU POST A REVERSAL: THE SAME LINES WITH DEBITS AND CREDITS SWAPPED, CANCELLING THE ORIGINAL.",
@@ -249,8 +271,18 @@ public static class LevelCatalog
                 new("REVERSE A MANUAL JOURNAL (OPEN IT FROM CODE JNLS AND USE REVERSE)", c => c.Journals.Any(j => j.ReversalOf is not null)),
             ],
             ["POST A DELIBERATE MISTAKE - E.G. 50 OF STATIONERY CODED TO RENT - THEN REVERSE IT."],
-            150),
-        new(11, "ADJUSTMENTS", "ACCRUALS AND DEPRECIATION",
+            150)
+        {
+            Scenarios =
+            [
+                new("You discover a £50 stationery payment was recorded as rent.",
+                    "A reversal cancels the amounts without erasing the original entry. Both entries stay visible in the audit trail.",
+                    ["If you don't already have a practice mistake to reverse, use Journal Entry (JE) to post SAMPLE ERROR: debit 6000 RENT £50 and credit 1000 BANK £50.",
+                     "Open the journal list, select your practice mistake, choose Reverse and confirm.",
+                     "Check that the reversal credits Rent and debits Bank. To record the correct payment, post debit 6300 OFFICE SUPPLIES and credit 1000 BANK for £50."], 0),
+            ],
+        },
+        new Level(11, "ADJUSTMENTS", "ACCRUALS AND DEPRECIATION",
             [
                 "AT MONTH END ACCOUNTANTS POST ADJUSTMENTS SO THE PROFIT REFLECTS THE PERIOD CORRECTLY.",
                 "DEPRECIATION SPREADS THE COST OF A LONG-LIVED ASSET OVER ITS LIFE: DR 6400 DEPRECIATION, CR 1510 ACCUMULATED DEPRECIATION.",
@@ -264,8 +296,19 @@ public static class LevelCatalog
                     j.Lines.Any(l => l.AccountCode == SystemAccounts.Accruals && l.Credit > 0))),
             ],
             ["BOTH ARE MANUAL JOURNALS (CODE JE)."],
-            200),
-        new(12, "THE STORY IN NUMBERS", "FINANCIAL STATEMENTS",
+            200)
+        {
+            Scenarios =
+            [
+                new("NorthSea uses £20 worth of its office equipment's value this month.",
+                    "Depreciation records the cost of using equipment. The matching credit tracks the total value written off so far.",
+                    ["Open Journal Entry. Enter MONTHLY DEPRECIATION, debit 6400 £20 and credit 1510 £20, then post."], 0),
+                new("NorthSea used £30 of electricity this month, but the bill has not arrived.",
+                    "Record the cost now. The credit goes to Accrued Expenses to show the business owes money it hasn't paid yet.",
+                    ["Open Journal Entry. Enter ELECTRICITY ACCRUAL, debit 6200 UTILITIES £30 and credit 2100 £30, then post."], 1),
+            ],
+        },
+        new Level(12, "THE STORY IN NUMBERS", "FINANCIAL STATEMENTS",
             [
                 "THE PROFIT AND LOSS (INCOME STATEMENT) SHOWS REVENUE LESS EXPENSES FOR A PERIOD.",
                 "THE BALANCE SHEET SHOWS WHAT THE BUSINESS OWNS AND OWES AT A POINT IN TIME. IT MUST BALANCE.",
@@ -277,8 +320,22 @@ public static class LevelCatalog
                 new("RUN THE AGED DEBTORS REPORT (CODE AGEDAR)", c => c.HasMilestone(Milestones.AgedDebtors)),
             ],
             ["NOTICE HOW THE PROFIT ON THE P&L APPEARS IN EQUITY ON THE BALANCE SHEET."],
-            150),
-        new(13, "YEAR END", "CLOSING THE BOOKS",
+            150)
+        {
+            Scenarios =
+            [
+                new("The owner asks whether NorthSea made a profit.",
+                    "Profit is income minus expenses over a period, not the amount of cash in the bank.",
+                    ["Open Profit and Loss. Find sales, expenses and the net profit or loss for the period."], 0),
+                new("The owner asks what the business owns and owes today.",
+                    "The balance sheet is a snapshot: assets equal liabilities plus equity.",
+                    ["Open Balance Sheet. Find Bank under assets and compare total assets with total liabilities and equity."], 1),
+                new("Find out whether any customers still owe NorthSea money.",
+                    "The aged debtors report groups unpaid invoices by how overdue they are. If earlier invoices were all paid, an empty report is expected.",
+                    ["Open Aged Debtors. Look for unpaid balances and find the column that shows the oldest debts."], 2),
+            ],
+        },
+        new Level(13, "YEAR END", "CLOSING THE BOOKS",
             [
                 "REVENUE AND EXPENSE ACCOUNTS MEASURE ONE YEAR'S PERFORMANCE, SO AT YEAR END THEY ARE RESET TO ZERO.",
                 "THE CLOSING JOURNAL MOVES THEIR BALANCES INTO RETAINED EARNINGS (3200), PART OF EQUITY.",
@@ -288,7 +345,17 @@ public static class LevelCatalog
                 new("RUN THE YEAR-END CLOSE (CODE YEC)", c => c.Journals.Any(j => j.Source == JournalSource.YearEnd)),
             ],
             ["COMPARE THE TRIAL BALANCE BEFORE AND AFTER THE CLOSE."],
-            250),
+            250)
+        {
+            Scenarios =
+            [
+                new("Your practice year is over. Carry the year's profit or loss into retained earnings.",
+                    "Closing moves income and expense balances into equity so the next year starts with a clean income and expense record.",
+                    ["Open Year-End Close. Enter a date on or after your practice income and expense postings, then preview.",
+                     "Find the offset to 3200 RETAINED EARNINGS. Confirm the close only in your practice sandbox.",
+                     "Open Trial Balance and compare it with the preview. Bank carries forward; the closed income and expense balances do not."], 0),
+            ],
+        },
     ];
 
     public static Level? Get(int number) => All.FirstOrDefault(l => l.Number == number);

@@ -1,0 +1,97 @@
+@page
+@model PracticeModel
+@{
+    ViewData["ScreenId"] = "TR210";
+    ViewData["Title"] = "DEAD CLIC - PRACTICE BOOKS";
+    ViewData["Exit"] = "/Training/Level/2";
+    ViewData["HelpTopic"] = "BASICS";
+    var books = Model.Books;
+    var completed = books.Journals.Count;
+    var missions = PracticeCatalog.All;
+    var accounts = books.Accounts
+        .Where(a => missions.Any(m => m.DebitCode == a.Code || m.CreditCode == a.Code))
+        .ToList();
+}
+<p class="box">These example books are separate from your main sandbox. If an entry doesn't match the scenario, nothing is posted and you can try again.</p>
+<p>MISSIONS POSTED: <strong>@completed / @missions.Count</strong></p>
+
+@if (completed < missions.Count)
+{
+    var mission = missions[completed];
+    var debitAccount = books.GetAccount(mission.DebitCode);
+    var creditAccount = books.GetAccount(mission.CreditCode);
+    <h2>MISSION @(completed + 1): @mission.Title</h2>
+    <p class="wh">@mission.Situation</p>
+    <p>A journal records both sides of one transaction. Debit means left, credit means right, and both sides must total the same amount.</p>
+    <ol>
+        <li>Debit <strong>@debitAccount.Code @debitAccount.Name</strong> by <strong>£@Fmt.Amt(mission.Amount)</strong>. @mission.DebitReason</li>
+        <li>Credit <strong>@creditAccount.Code @creditAccount.Name</strong> by <strong>£@Fmt.Amt(mission.Amount)</strong>. @mission.CreditReason</li>
+        <li>Post the journal, then check your entry and the balances below.</li>
+    </ol>
+    <form method="post">
+        <input type="hidden" name="MissionIndex" value="@completed" />
+        <fieldset>
+            <legend>1. Debit (left)</legend>
+            <label asp-for="DebitCode">Debit account</label>
+            <select class="fld" asp-for="DebitCode" required>
+                <option value="">Choose account</option>
+                @foreach (var account in accounts)
+                {
+                    <option value="@account.Code">@account.Code @account.Name</option>
+                }
+            </select>
+            <label asp-for="DebitAmount">Debit amount (£)</label>
+            <input asp-for="DebitAmount" class="fld w8" inputmode="decimal" maxlength="16" required />
+        </fieldset>
+        <fieldset>
+            <legend>2. Credit (right)</legend>
+            <label asp-for="CreditCode">Credit account</label>
+            <select class="fld" asp-for="CreditCode" required>
+                <option value="">Choose account</option>
+                @foreach (var account in accounts)
+                {
+                    <option value="@account.Code">@account.Code @account.Name</option>
+                }
+            </select>
+            <label asp-for="CreditAmount">Credit amount (£)</label>
+            <input asp-for="CreditAmount" class="fld w8" inputmode="decimal" maxlength="16" required />
+        </fieldset>
+        <div class="actions"><button type="submit" class="btn">POST PRACTICE JOURNAL</button></div>
+    </form>
+}
+else
+{
+    <p class="box good">Practice complete! You posted an investment, a sale and an expense. See how each one changed the ledgers below.</p>
+    <div class="actions"><a class="btn" href="/Training/Level/3">CONTINUE TO LEVEL 3</a></div>
+}
+
+<h2>PRACTICE LEDGERS</h2>
+<table class="grid">
+    <thead><tr><th scope="col">Account</th><th scope="col" class="n">Debit balance (£)</th><th scope="col" class="n">Credit balance (£)</th></tr></thead>
+    <tbody>
+    @foreach (var account in accounts)
+    {
+        var balance = books.Balance(account.Code);
+        <tr><th scope="row">@account.Code @account.Name</th><td class="n">@Fmt.Amt(Math.Max(balance, 0))</td><td class="n">@Fmt.Amt(Math.Max(-balance, 0))</td></tr>
+    }
+    </tbody>
+</table>
+<h2>POSTED PRACTICE JOURNALS</h2>
+@if (completed == 0)
+{
+    <p>No entries yet. Your first journal will appear here.</p>
+}
+@foreach (var journal in books.Journals.AsEnumerable().Reverse())
+{
+    <table class="grid">
+        <caption>@Fmt.Jnl(journal.Number) — @journal.Description</caption>
+        <thead><tr><th scope="col">Account</th><th scope="col" class="n">Debit (£)</th><th scope="col" class="n">Credit (£)</th></tr></thead>
+        <tbody>
+        @foreach (var line in journal.Lines)
+        {
+            <tr><th scope="row">@line.AccountCode @books.GetAccount(line.AccountCode).Name</th><td class="n">@Fmt.AmtOrBlank(line.Debit)</td><td class="n">@Fmt.AmtOrBlank(line.Credit)</td></tr>
+        }
+        </tbody>
+        <tfoot><tr><th scope="row">Totals</th><td class="n">@Fmt.Amt(journal.TotalDebits)</td><td class="n">@Fmt.Amt(journal.TotalCredits)</td></tr></tfoot>
+    </table>
+}
