@@ -1,6 +1,7 @@
 using AccountedFor.Web.Terminal;
 using Fidos.Core;
 using Fidos.Core.Training;
+using System.Text.Json;
 
 namespace Fidos.Core.Tests;
 
@@ -15,6 +16,62 @@ public class TrainingGuideTests
 
         Assert.Equal(2, company.CurrentLevel?.Number);
         Assert.Equal(1, TrainingGuide.SelectedLevel(company, "sandbox", selection)?.Number);
+    }
+
+    [Fact]
+    public void SavedSelection_TracksProgressAcrossSandboxRoundTrip()
+    {
+        var company = Company.CreateNew();
+        company.SelectedTrainingLevel = 1;
+        company.Mark(Milestones.ChartOfAccounts);
+
+        var copy = JsonSerializer.Deserialize<Company>(JsonSerializer.Serialize(company))!;
+        var selected = TrainingGuide.SelectedLevel(copy, "sandbox", null)!;
+
+        Assert.Equal(1, selected.Number);
+        Assert.True(selected.Objectives[0].IsMet(copy));
+        Assert.False(selected.Objectives[1].IsMet(copy));
+
+        copy.Mark(Milestones.AccountInquiry);
+        copy.CheckLevelProgress();
+        copy = JsonSerializer.Deserialize<Company>(JsonSerializer.Serialize(copy))!;
+        selected = TrainingGuide.SelectedLevel(copy, "sandbox", null)!;
+
+        Assert.Equal(1, selected.Number);
+        Assert.All(selected.Objectives, objective => Assert.True(objective.IsMet(copy)));
+        Assert.Equal(2, copy.CurrentLevel?.Number);
+    }
+
+    [Fact]
+    public void SavedSelection_TakesPrecedenceOverLegacyCookie()
+    {
+        var company = Company.CreateNew();
+        company.CompletedLevels[1] = DateTime.UtcNow;
+        company.SelectedTrainingLevel = 2;
+
+        Assert.Equal(2, TrainingGuide.SelectedLevel(company, "sandbox", "sandbox:1")?.Number);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(2)]
+    [InlineData(999)]
+    public void InvalidSavedSelection_FallsBackToCurrentLevel(int number)
+    {
+        var company = Company.CreateNew();
+        company.SelectedTrainingLevel = number;
+
+        Assert.Equal(1, TrainingGuide.SelectedLevel(company, "sandbox", null)?.Number);
+    }
+
+    [Fact]
+    public void LegacySelection_IsOnlyAcceptedForItsOwnSandboxAndUnlockedLessons()
+    {
+        var company = Company.CreateNew();
+
+        Assert.Equal(1, TrainingGuide.LegacySelectedLevel(company, "sandbox", "sandbox:1")?.Number);
+        Assert.Null(TrainingGuide.LegacySelectedLevel(company, "sandbox", "other:1"));
+        Assert.Null(TrainingGuide.LegacySelectedLevel(company, "sandbox", "sandbox:2"));
     }
 
     [Theory]

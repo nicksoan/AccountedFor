@@ -84,7 +84,7 @@
             }
 
             <details data-remember-guide="true">
-                <summary>Lesson progress and navigation</summary>
+                <summary>Training log and navigation</summary>
                 <nav class="guide-nav" aria-label="Workspace navigation">
                     <a href="/Menu">Main menu</a>
                     <a href="/Training">Training levels</a>
@@ -95,6 +95,11 @@
                 <section aria-labelledby="lesson-guide">
                     <h2 id="lesson-guide">Lesson @guideLevel.Number / @guideLevel.Title</h2>
                     <p>@guideLevel.Concept</p>
+                    <p>@guideLevel.Objectives.Count(o => o.IsMet(company)) / @guideLevel.Objectives.Count objectives complete</p>
+                    <details>
+                        <summary>Show lesson briefing</summary>
+                        @foreach (var line in guideLevel.Briefing) { <p>@line</p> }
+                    </details>
                     <ul class="guide-objectives">
                         @for (var i = 0; i < guideLevel.Objectives.Count; i++)
                         {
