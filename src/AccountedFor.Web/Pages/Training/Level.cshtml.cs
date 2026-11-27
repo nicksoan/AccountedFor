@@ -20,14 +20,10 @@ public class LevelModel(SandboxStore store) : TerminalPageModel(store)
         Level = level;
         if (Company.IsLevelUnlocked(number))
         {
-            Response.Cookies.Append(TrainingGuide.CookieName, TrainingGuide.Selection(SandboxId, number), new CookieOptions
+            if (Company.SelectedTrainingLevel != number)
             {
-                HttpOnly = true,
-                IsEssential = true,
-                SameSite = SameSiteMode.Lax,
-                Secure = Request.IsHttps,
-                Expires = DateTimeOffset.UtcNow.AddYears(1),
-            });
+                TryUpdate(c => c.SelectedTrainingLevel = number);
+            }
             ViewData["GuideLevel"] = level;
         }
 

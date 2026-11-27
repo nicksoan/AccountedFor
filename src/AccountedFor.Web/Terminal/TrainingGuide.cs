@@ -34,6 +34,17 @@ public static class TrainingGuide
 
     public static Level? SelectedLevel(Company company, string? sandboxId, string? selection)
     {
+        if (company.SelectedTrainingLevel is int number &&
+            LevelCatalog.Get(number) is { } level && company.IsLevelUnlocked(number))
+        {
+            return level;
+        }
+
+        return LegacySelectedLevel(company, sandboxId, selection) ?? company.CurrentLevel;
+    }
+
+    public static Level? LegacySelectedLevel(Company company, string? sandboxId, string? selection)
+    {
         var parts = selection?.Split(':');
         if (parts is { Length: 2 } && !string.IsNullOrEmpty(sandboxId) &&
             string.Equals(parts[0], sandboxId, StringComparison.OrdinalIgnoreCase) &&
@@ -43,6 +54,6 @@ public static class TrainingGuide
             return level;
         }
 
-        return company.CurrentLevel;
+        return null;
     }
 }

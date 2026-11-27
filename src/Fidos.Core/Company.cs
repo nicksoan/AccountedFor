@@ -31,6 +31,8 @@ public sealed partial class Company
     /// <summary>Completed training levels and when they were completed.</summary>
     public Dictionary<int, DateTime> CompletedLevels { get; set; } = [];
 
+    public int? SelectedTrainingLevel { get; set; }
+
     public DrillState Drill { get; set; } = new();
 
     public static Company CreateNew(string? operatorId = null)

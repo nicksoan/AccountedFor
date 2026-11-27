@@ -42,6 +42,17 @@ public abstract class TerminalPageModel(SandboxStore store) : PageModel
         SandboxId = id!.ToLowerInvariant();
         Company = company;
         ViewData["Company"] = company;
+
+        if (Request.Cookies.TryGetValue(TrainingGuide.CookieName, out var selection) &&
+            TrainingGuide.LegacySelectedLevel(company, SandboxId, selection) is { } selected)
+        {
+            if (company.SelectedTrainingLevel is null)
+            {
+                TryUpdate(c => c.SelectedTrainingLevel = selected.Number);
+            }
+
+            Response.Cookies.Delete(TrainingGuide.CookieName);
+        }
     }
 
     /// <summary>Runs a bookkeeping operation, saving the sandbox. Bookkeeping errors are shown on the message line.</summary>
