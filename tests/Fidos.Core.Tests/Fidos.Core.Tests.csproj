@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\AccountedFor.Web\AccountedFor.Web.csproj" />
     <ProjectReference Include="..\..\src\Fidos.Core\Fidos.Core.csproj" />
   </ItemGroup>
 

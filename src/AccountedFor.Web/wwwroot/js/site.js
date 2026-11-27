@@ -17,7 +17,7 @@
     // Place the cursor in the first input field on the screen, otherwise on the command line.
     const first = document.querySelector("main [autofocus]")
         || document.querySelector("main input.fld:not([type=hidden]):not([readonly]), main select.fld");
-    (first || document.getElementById("cmd"))?.focus();
+    (first || document.getElementById("cmd"))?.focus({ preventScroll: true });
 
     // Clock.
     const clock = document.getElementById("clock");

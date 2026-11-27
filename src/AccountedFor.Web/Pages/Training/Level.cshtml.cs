@@ -18,6 +18,19 @@ public class LevelModel(SandboxStore store) : TerminalPageModel(store)
 
         CatchUpLevels();
         Level = level;
+        if (Company.IsLevelUnlocked(number))
+        {
+            Response.Cookies.Append(TrainingGuide.CookieName, TrainingGuide.Selection(SandboxId, number), new CookieOptions
+            {
+                HttpOnly = true,
+                IsEssential = true,
+                SameSite = SameSiteMode.Lax,
+                Secure = Request.IsHttps,
+                Expires = DateTimeOffset.UtcNow.AddYears(1),
+            });
+            ViewData["GuideLevel"] = level;
+        }
+
         return Page();
     }
 }
