@@ -1,3 +1,5 @@
+using Fidos.Core.Training;
+
 namespace AccountedFor.Web.Terminal;
 
 public sealed record MenuOption(string Key, string Code, string Label, string Description, string Url);
@@ -97,6 +99,13 @@ public static class Navigation
         if (cmd.StartsWith('=') || cmd.Contains('.'))
         {
             return Jump(cmd.TrimStart('=').Split('.', StringSplitOptions.RemoveEmptyEntries));
+        }
+
+        if (string.Equals(fromPath?.TrimEnd('/'), "/Training", StringComparison.OrdinalIgnoreCase)
+            && int.TryParse(cmd, out var levelNumber)
+            && LevelCatalog.All.Any(level => level.Number == levelNumber))
+        {
+            return $"/Training/Level/{levelNumber}";
         }
 
         var current = Menus.FirstOrDefault(m => string.Equals(m.Url, fromPath, StringComparison.OrdinalIgnoreCase));

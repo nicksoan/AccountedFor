@@ -69,4 +69,16 @@ public class TrainingGuideTests
         Assert.Equal("/Help", Navigation.Resolve("6", main.Url));
         Assert.Equal("/Help", fundamentals.Url);
     }
+
+    [Fact]
+    public void TrainingLevelNumbers_OpenTheirMatchingLessons()
+    {
+        foreach (var level in LevelCatalog.All)
+        {
+            Assert.Equal($"/Training/Level/{level.Number}", Navigation.Resolve(level.Number.ToString(), "/Training"));
+        }
+
+        Assert.Null(Navigation.Resolve("0", "/Training"));
+        Assert.Null(Navigation.Resolve("999", "/Training"));
+    }
 }
