@@ -21,7 +21,7 @@ public static class Navigation
             new("2", "AR", "ACCOUNTS RECEIVABLE", "SALES LEDGER: CUSTOMERS, INVOICES, RECEIPTS", "/Menu/AR"),
             new("3", "AP", "ACCOUNTS PAYABLE", "PURCHASE LEDGER: SUPPLIERS, INVOICES, PAYMENTS", "/Menu/AP"),
             new("4", "RPT", "REPORTS", "TRIAL BALANCE, P&L, BALANCE SHEET, RECONCILIATION", "/Menu/RPT"),
-            new("5", "TRN", "TUTORIAL", "TRAINING LEVELS AND DEBIT/CREDIT DRILL", "/Menu/TRN"),
+            new("5", "TRN", "TUTORIAL", "HANDS-ON BOOKKEEPING MISSIONS", "/Menu/TRN"),
             new("6", "HELP", "ACCOUNTING FUNDAMENTALS", "DOUBLE-ENTRY BOOKKEEPING EXPLAINED", "/Help"),
             new("8", "OPT", "DISPLAY OPTIONS", "CRT FILTER AND FONT COLOURS", "/Options"),
             new("9", "SYS", "SANDBOX UTILITIES", "OPEN, START OR RESET A SANDBOX", "/System"),
@@ -66,7 +66,8 @@ public static class Navigation
         new("TRN", "TR000", "TUTORIAL", "/Menu/TRN", MainMenu,
         [
             new("1", "LEVELS", "TRAINING LEVELS", "MISSIONS THAT TEACH BOOKKEEPING STEP BY STEP", "/Training"),
-            new("2", "DRILL", "DEBIT OR CREDIT?", "QUICK-FIRE DOUBLE-ENTRY PRACTICE", "/Training/Drill"),
+            new("2", "PRACTICE", "PRACTICE BOOKS", "POST GUIDED EXAMPLE JOURNALS IN LEVEL 2", "/Training/Practice"),
+            new("3", "DRILL", "DEBIT OR CREDIT?", "OPTIONAL QUICK-FIRE QUIZ", "/Training/Drill"),
             new("3", "TUTOR", "ACCOUNTING FUNDAMENTALS", "THE THEORY BEHIND THE SCREENS", "/Help"),
         ]),
     ];

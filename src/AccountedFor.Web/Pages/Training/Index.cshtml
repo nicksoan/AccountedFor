@@ -5,11 +5,15 @@
     ViewData["Title"] = "ACCOUNTED FOR - TRAINING LEVELS";
     ViewData["Exit"] = "/Menu/TRN";
     ViewData["HelpTopic"] = "LEVELS";
-    ViewData["PfKeys"] = new[] { new PfKey("F6", "DRILL", "/Training/Drill") };
+    ViewData["PfKeys"] = new[] { new PfKey("F6", "PRACTICE", "/Training/Practice") };
     var c = Model.Company;
 }
 <p>OPERATOR <span class="wh">@c.OperatorId</span>  RANK <span class="ye">@c.Rank</span>  SCORE <span class="ye">@c.Score</span>
-    LEVELS <span class="wh">@c.CompletedLevels.Count/@LevelCatalog.All.Count</span>  DRILL <span class="wh">@c.Drill.Correct/@c.Drill.Attempts</span> (BEST STREAK @c.Drill.BestStreak)</p>
+    LEVELS <span class="wh">@c.CompletedLevels.Count/@LevelCatalog.All.Count</span></p>
+@if (c.CurrentLevel is { } current)
+{
+    <div class="actions"><a class="btn" href="/Training/Level/@current.Number">CONTINUE LEVEL @current.Number: @current.Title</a></div>
+}
 <table class="grid">
     <thead><tr><th>LVL</th><th>MISSION</th><th>CONCEPT</th><th class="n">PTS</th><th>STATUS</th></tr></thead>
     <tbody>
@@ -27,4 +31,4 @@
     }
     </tbody>
 </table>
-<p class="dim">LEVELS ARE OPTIONAL AND UNLOCK IN ORDER. OBJECTIVES ARE CHECKED AGAINST YOUR REAL FIDOS BOOKS EVERY TIME YOU POST.</p>
+<p class="dim">LEVELS ARE OPTIONAL AND UNLOCK IN ORDER. LEVEL 2 USES SEPARATE PRACTICE BOOKS; THE OTHER MISSIONS USE YOUR MAIN SANDBOX BOOKS.</p>

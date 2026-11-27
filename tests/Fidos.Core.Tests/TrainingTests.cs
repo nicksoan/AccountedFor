@@ -65,42 +65,74 @@ public class TrainingTests
     }
 
     [Fact]
-    public void GuidedDrill_ProgressesOneStepAtATimeAndSurvivesReload()
+    public void Practice_PostsBothSidesInSeparateBooksAndSurvivesReload()
     {
         var company = Company.CreateNew();
         company.CompletedLevels[1] = DateTime.UtcNow;
         var level = LevelCatalog.Get(2)!;
+        company.PostJournal(Day, "Original sandbox entry", [new("1000", 400, 0), new("3000", 0, 400)]);
 
-        Assert.False(company.AnswerGuidedDrill(0, "CREDIT"));
-        Assert.Equal(0, company.Drill.GuidedStepsCompleted);
-        Assert.Throws<BookkeepingException>(() => company.AnswerGuidedDrill(1, "CREDIT"));
-
-        for (var i = 0; i < GuidedDrillCatalog.All.Count; i++)
+        for (var i = 0; i < PracticeCatalog.All.Count; i++)
         {
+            var mission = PracticeCatalog.All[i];
             Assert.False(level.Objectives[i].IsMet(company));
-            Assert.True(company.AnswerGuidedDrill(i, GuidedDrillCatalog.All[i].Answer));
+            var entry = company.PostPracticeEntry(i, mission.DebitCode, mission.Amount, mission.CreditCode, mission.Amount);
+            Assert.Equal(i + 1, entry.Number);
+            Assert.Equal(mission.Amount, entry.TotalDebits);
+            Assert.Equal(mission.Amount, entry.TotalCredits);
+            Assert.Contains(entry.Lines, l => l.AccountCode == mission.DebitCode && l.Debit == mission.Amount);
+            Assert.Contains(entry.Lines, l => l.AccountCode == mission.CreditCode && l.Credit == mission.Amount);
             Assert.True(level.Objectives[i].IsMet(company));
-            if (i < GuidedDrillCatalog.All.Count - 1)
+            if (i < PracticeCatalog.All.Count - 1)
             {
                 Assert.Null(company.CheckLevelProgress());
             }
             company = JsonSerializer.Deserialize<Company>(JsonSerializer.Serialize(company))!;
         }
 
-        Assert.Empty(company.Journals);
+        Assert.Single(company.Journals);
+        Assert.Equal(400, company.Balance("1000"));
+        Assert.Equal(115, PracticeCatalog.OpenBooks(company.PracticeMissionsCompleted).Balance("1000"));
+        Assert.Equal(-25, PracticeCatalog.OpenBooks(company.PracticeMissionsCompleted).Balance("4000"));
         Assert.Equal(0, company.Drill.Correct);
         Assert.Equal(2, company.CheckLevelProgress()?.Number);
         Assert.True(company.IsLevelUnlocked(3));
-        Assert.Throws<BookkeepingException>(() => company.AnswerGuidedDrill(GuidedDrillCatalog.All.Count, "DEBIT"));
+        Assert.Throws<BookkeepingException>(() => company.PostPracticeEntry(0, "1000", 100, "3000", 100));
     }
 
     [Fact]
-    public void Level2_RecognizesPreviousDrillAndCompletedProgress()
+    public void Practice_RejectsLockedOrOutOfOrderMissions()
+    {
+        var company = Company.CreateNew();
+        Assert.Throws<BookkeepingException>(() => company.PostPracticeEntry(0, "1000", 100, "3000", 100));
+        company.CompletedLevels[1] = DateTime.UtcNow;
+        Assert.Throws<BookkeepingException>(() => company.PostPracticeEntry(1, "1000", 25, "4000", 25));
+        Assert.Equal(0, company.PracticeMissionsCompleted);
+    }
+
+    [Theory]
+    [InlineData("3000", 100, "1000", 100, "debit (left)")]
+    [InlineData("1000", 100, "4000", 100, "credit (right)")]
+    [InlineData("1000", 100, "3000", 90, "doesn't balance")]
+    [InlineData("1000", 90, "3000", 90, "this transaction is for")]
+    public void Practice_InvalidEntryGivesFeedbackWithoutPosting(string dr, int debit, string cr, int credit, string feedback)
+    {
+        var company = Company.CreateNew();
+        company.CompletedLevels[1] = DateTime.UtcNow;
+        var error = Assert.Throws<BookkeepingException>(() => company.PostPracticeEntry(0, dr, debit, cr, credit));
+        Assert.Contains(feedback, error.Message);
+        Assert.Equal(0, company.PracticeMissionsCompleted);
+        Assert.Empty(PracticeCatalog.OpenBooks(company.PracticeMissionsCompleted).Journals);
+        Assert.Empty(company.Journals);
+    }
+
+    [Fact]
+    public void Level2_RequiresPracticeButRetainsCompletedLevels()
     {
         var company = Company.CreateNew();
         var level = LevelCatalog.Get(2)!;
         company.Drill.Correct = 5;
-        Assert.All(level.Objectives, o => Assert.True(o.IsMet(company)));
+        Assert.All(level.Objectives, o => Assert.False(o.IsMet(company)));
 
         company.Drill.Correct = 0;
         company.CompletedLevels[2] = DateTime.UtcNow;

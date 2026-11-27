@@ -74,9 +74,10 @@ else
 @if (l.Scenarios.Count == 0 || !c.IsLevelUnlocked(l.Number))
 {
     <p class="cy">OBJECTIVES</p>
-    @if (c.IsLevelUnlocked(l.Number) && l.Number == 2 && !done)
+    @if (l.Number == 2 && c.IsLevelUnlocked(2))
     {
-        <p class="dim">SELECT AN OBJECTIVE TO OPEN GUIDED PRACTICE AT YOUR NEXT STEP.</p>
+        <p>Start with a small investment, then post a sale and an expense. You'll see what each posting changes in the practice ledgers.</p>
+        <div class="actions"><a class="btn" asp-page="./Practice">OPEN PRACTICE BOOKS</a></div>
     }
     <table class="grid">
         @for (var i = 0; i < l.Objectives.Count; i++)
@@ -87,7 +88,7 @@ else
             <tr>
                 <td>@(met ? "[X]" : "[ ]")</td>
                 <td class="@(met ? "good" : "")">
-                    @if (c.IsLevelUnlocked(l.Number) && !met && url is not null)
+                    @if (l.Number != 2 && c.IsLevelUnlocked(l.Number) && !met && url is not null)
                     {
                         <a class="objective-link" href="@url">@o.Text</a>
                     }

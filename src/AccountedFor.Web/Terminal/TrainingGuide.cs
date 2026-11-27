@@ -10,7 +10,7 @@ public static class TrainingGuide
     private static readonly string[][] ObjectiveUrls =
     [
         ["/Gl/Accounts", "/Gl/Accounts"],
-        ["/Training/Drill", "/Training/Drill", "/Training/Drill", "/Training/Drill", "/Training/Drill", "/Training/Drill"],
+        ["/Training/Practice", "/Training/Practice", "/Training/Practice"],
         ["/Gl/Journal"],
         ["/Gl/NewAccount", "/Gl/Journal"],
         ["/ar/parties/new", "/ar/invoice"],
