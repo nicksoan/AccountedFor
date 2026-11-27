@@ -10,6 +10,8 @@
     var pfKeys = ViewData["PfKeys"] as IEnumerable<PfKey> ?? [];
     var path = Context.Request.Path.Value;
     var level = company?.CurrentLevel;
+    var disableCrt = Context.Request.Cookies[DisplayPreferences.DisableCrtCookie] == "1";
+    var fontColor = DisplayPreferences.FontColorOrDefault(Context.Request.Cookies[DisplayPreferences.FontColorCookie]);
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -20,7 +22,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
-<div class="crt">
+<div class="crt @(disableCrt ? "no-crt" : null) theme-@fontColor">
     <div class="terminal">
         <div class="row head">
             <span><span class="hi">FIDOS</span> <span class="cy">@screenId</span></span>
