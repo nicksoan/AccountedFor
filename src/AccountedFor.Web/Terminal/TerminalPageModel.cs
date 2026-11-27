@@ -9,6 +9,17 @@ namespace AccountedFor.Web.Terminal;
 public abstract class TerminalPageModel(SandboxStore store) : PageModel
 {
     public const string CookieName = "FIDOS.SANDBOX";
+    public const string RememberedCookieName = "FIDOS.REMEMBERED";
+
+    public static void SetSandboxCookie(HttpContext context, string name, string id) =>
+        context.Response.Cookies.Append(name, id, new CookieOptions
+        {
+            HttpOnly = true,
+            IsEssential = true,
+            SameSite = SameSiteMode.Lax,
+            Secure = context.Request.IsHttps,
+            Expires = DateTimeOffset.UtcNow.AddYears(1),
+        });
 
     protected SandboxStore Store => store;
 

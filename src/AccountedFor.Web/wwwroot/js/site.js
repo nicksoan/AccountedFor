@@ -19,6 +19,16 @@
         || document.querySelector("main input.fld:not([type=hidden]):not([readonly]), main select.fld");
     (first || document.getElementById("cmd"))?.focus({ preventScroll: true });
 
+    const guide = document.querySelector('[data-remember-guide="true"]');
+    if (guide) {
+        try {
+            guide.open = sessionStorage.getItem("fidos.guide-open") === "1";
+            guide.addEventListener("toggle", () => sessionStorage.setItem("fidos.guide-open", guide.open ? "1" : "0"));
+        } catch {
+            // The guide still opens without browser storage.
+        }
+    }
+
     // Clock.
     const clock = document.getElementById("clock");
     if (clock) {

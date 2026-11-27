@@ -8,6 +8,7 @@
     var message = TempData["Message"] as string;
     var levelUp = TempData["LevelUp"] as string;
     var pfKeys = ViewData["PfKeys"] as IEnumerable<PfKey> ?? [];
+    var showCommandStep = ViewData["ShowCommandStep"] is true;
     var path = Context.Request.Path.Value;
     var level = company?.CurrentLevel;
     var guideLevel = company is null ? null : ViewData["GuideLevel"] as Level ??
@@ -25,20 +26,14 @@
 </head>
 <body>
 <div class="workspace">
-    <aside id="guide" class="guide" aria-label="Accounted For guide">
-        <div class="guide-brand">ACCOUNTED FOR <span> / LEARNING WORKSPACE</span></div>
-        <h1>Your FIDOS guide</h1>
-        <p>Learn bookkeeping in a practice ERP. The terminal is your workspace; this guide stays with you as you explore.</p>
-        <p><a href="#terminal">Skip to terminal</a></p>
+    <details id="guide" class="guide" data-remember-guide="@(company is not null ? "true" : null)">
+        <summary><span class="mascot" aria-hidden="true">›_</span> Pixel · Terminal guide</summary>
+        <aside class="guide-panel" aria-label="Accounted For guide">
+        <p>Hi, I’m Pixel, your FIDOS terminal guide.</p>
         @if (company is null)
         {
-            <section aria-labelledby="signon-guide">
-                <h2 id="signon-guide">01 / Sign on</h2>
-                <p>Choose a USERID of 1–8 letters or digits, then press ENTER=LOGON. No password is needed.</p>
-                <p>Leave the sandbox ID blank for a new practice sandbox, or enter an ID to resume one. Never use real financial data.</p>
-                <h2>02 / Find your training</h2>
-                <p>On the main menu choose 5 ACCOUNTED FOR, then 1 TRAINING LEVELS. Select level 1 to begin.</p>
-            </section>
+            <p>Your sandbox is a private set of practice books. No password is needed. Once you sign on, I’ll show you how to open your first lesson.</p>
+            <p><a href="/">Go to sign-on</a></p>
         }
         else
         {
@@ -49,7 +44,7 @@
             </nav>
             @if (string.Equals(path, "/Menu", StringComparison.OrdinalIgnoreCase) || string.Equals(path, "/Menu/MAIN", StringComparison.OrdinalIgnoreCase))
             {
-                <p class="guide-tip"><strong>Find training:</strong> choose 5 ACCOUNTED FOR here, then 1 TRAINING LEVELS. You can click an option or type its number on the command line and press Enter.</p>
+                <p class="guide-tip"><strong>Try a command:</strong> type <code>LEVELS</code> in the command bar and press Enter to open training levels. You can also type a menu option number or click it.</p>
             }
             else if (string.Equals(path, "/Menu/TRN", StringComparison.OrdinalIgnoreCase))
             {
@@ -98,7 +93,8 @@
             }
             <p class="guide-tip">Need your bearings? F12 returns to the main menu; F3 exits the current screen. You can also click the PF key labels below the terminal.</p>
         }
-    </aside>
+        </aside>
+    </details>
 <div class="crt @(disableCrt ? "no-crt" : null) theme-@fontColor">
     <div id="terminal" class="terminal">
         <div class="row head">
@@ -122,9 +118,17 @@
             </div>
             <form method="get" action="/Command" class="row cmd" autocomplete="off">
                 <label for="cmd" class="cy">COMMAND ===&gt;</label>
-                <input id="cmd" name="cmd" class="fld cmdfld" maxlength="20" spellcheck="false" />
+                <input id="cmd" name="cmd" class="fld cmdfld @(showCommandStep ? "coach-field" : null)"
+                       maxlength="20" spellcheck="false" enterkeyhint="go" aria-describedby="@(showCommandStep ? "command-step" : null)" />
                 <input type="hidden" name="from" value="@path" />
             </form>
+            @if (showCommandStep)
+            {
+                <p id="command-step" class="coach-tip">
+                    <strong>Pixel · Step 2 of 2</strong>
+                    <span>Type <code>LEVELS</code> in the command bar above, then press Enter to open your training levels.</span>
+                </p>
+            }
         }
         <div class="rule"></div>
         <main>

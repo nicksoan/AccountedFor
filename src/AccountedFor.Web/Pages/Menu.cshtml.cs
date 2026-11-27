@@ -19,6 +19,7 @@ public class MenuModel(SandboxStore store) : TerminalPageModel(store)
         if (menu.Id == "MAIN")
         {
             CatchUpLevels();
+            ViewData["ShowCommandStep"] = TempData["ShowCommandStep"] is true;
         }
 
         return Page();

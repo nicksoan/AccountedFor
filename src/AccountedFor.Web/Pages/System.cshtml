@@ -18,9 +18,20 @@
 </table>
 <p class="dim">KEEP YOUR SANDBOX ID PRIVATE - ANYONE WITH IT CAN OPEN YOUR TRAINING BOOKS.</p>
 
+<h2>SWITCH SANDBOX</h2>
+<p>OPEN SAVED BOOKS BY ID, OR START WITH FRESH BOOKS. KEEP YOUR CURRENT ID IF YOU WANT TO RETURN TO THESE BOOKS LATER.</p>
+<form method="post" asp-page-handler="Resume" autocomplete="off">
+    <label for="resume" class="cy">SAVED SANDBOX ID ===&gt;</label>
+    <input id="resume" class="fld w40" asp-for="ResumeId" maxlength="40" spellcheck="false" />
+    <div class="actions"><button type="submit" class="btn">ENTER=OPEN SANDBOX</button></div>
+</form>
+<form method="post" asp-page-handler="StartNew">
+    <div class="actions"><button type="submit" class="btn">START NEW SANDBOX</button></div>
+</form>
+
 <h2>RESET SANDBOX</h2>
 <p>WIPES EVERY POSTING, CUSTOMER, SUPPLIER AND LEVEL. THE CHART OF ACCOUNTS RETURNS TO THE STANDARD FIDOS CHART.</p>
-<form method="post" autocomplete="off">
+<form method="post" asp-page-handler="Reset" autocomplete="off">
     <label for="confirm" class="cy">TYPE RESET TO CONFIRM ===&gt;</label>
     <input id="confirm" class="fld w10" asp-for="Confirm" maxlength="5" autofocus />
     <div class="actions"><button type="submit" class="btn danger">ENTER=RESET SANDBOX</button></div>

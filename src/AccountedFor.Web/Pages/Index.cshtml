@@ -20,34 +20,19 @@
 <p class="dim">DO NOT ENTER REAL OR PERSONAL FINANCIAL DATA.</p>
 
 <form method="post" autocomplete="off">
-    <table class="form">
-        <tr>
-            <td class="lbl"><label for="op">USERID</label><span class="dots"></span></td>
-            <td><input id="op" class="fld w10" asp-for="OperatorId" maxlength="8" /> <span class="dim">1-8 LETTERS/DIGITS</span></td>
-        </tr>
-        <tr>
-            <td class="lbl"><label for="sb">RESUME SANDBOX ID</label><span class="dots"></span></td>
-            <td><input id="sb" class="fld w40" asp-for="SandboxKey" maxlength="40" spellcheck="false" /> <span class="dim">OPTIONAL</span></td>
-        </tr>
-        <tr>
-            <td class="lbl"><label for="nw">START NEW SANDBOX (Y/N)</label><span class="dots"></span></td>
-            <td><input id="nw" class="fld w4" asp-for="StartNew" maxlength="1" /></td>
-        </tr>
-    </table>
-    @if (Model.Existing is not null)
-    {
-        <div class="box good">
-            WELCOME BACK. THIS BROWSER HAS A SANDBOX FOR <span class="wh">@Model.Existing.OperatorId</span>
-            (@Model.Existing.Journals.Count @(Model.Existing.Journals.Count == 1 ? "JOURNAL" : "JOURNALS"), RANK <span class="ye">@Model.Existing.Rank</span>).
-            PRESS ENTER TO RESUME IT.
-        </div>
-    }
-    else
-    {
-        <div class="box">
-            PRESS ENTER TO CREATE YOUR SANDBOX. TO CONTINUE ON ANOTHER DEVICE, ENTER THE SANDBOX ID
-            SHOWN ON THE SANDBOX UTILITIES SCREEN (OPTION 9).
-        </div>
-    }
+    <p id="signon-step" class="coach-tip">
+        <strong>Pixel · Step 1 of 2</strong>
+        @if (Model.Existing is not null)
+        {
+            <span>Welcome back, @Model.Existing.OperatorId! Press Enter to sign on and reopen your practice books.</span>
+        }
+        else
+        {
+            <span>To get started, type your name or initials (1–8 letters or digits), then press Enter to create your sandbox.</span>
+        }
+    </p>
+    <label for="op" class="cy">USERID ===&gt;</label>
+    <input id="op" class="fld w10 coach-field" asp-for="OperatorId" maxlength="8" spellcheck="false"
+           enterkeyhint="go" aria-describedby="signon-step" autofocus />
     <div class="actions"><button type="submit" class="btn">ENTER=LOGON</button></div>
 </form>
