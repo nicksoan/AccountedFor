@@ -19,8 +19,8 @@ public static class Navigation
             new("2", "AR", "ACCOUNTS RECEIVABLE", "SALES LEDGER: CUSTOMERS, INVOICES, RECEIPTS", "/Menu/AR"),
             new("3", "AP", "ACCOUNTS PAYABLE", "PURCHASE LEDGER: SUPPLIERS, INVOICES, PAYMENTS", "/Menu/AP"),
             new("4", "RPT", "REPORTS", "TRIAL BALANCE, P&L, BALANCE SHEET, RECONCILIATION", "/Menu/RPT"),
-            new("5", "TRN", "ACCOUNTED FOR", "TRAINING LEVELS AND DEBIT/CREDIT DRILL", "/Menu/TRN"),
-            new("6", "HELP", "TUTORIAL", "DOUBLE-ENTRY BOOKKEEPING EXPLAINED", "/Help"),
+            new("5", "TRN", "TUTORIAL", "TRAINING LEVELS AND DEBIT/CREDIT DRILL", "/Menu/TRN"),
+            new("6", "HELP", "ACCOUNTING FUNDAMENTALS", "DOUBLE-ENTRY BOOKKEEPING EXPLAINED", "/Help"),
             new("8", "OPT", "DISPLAY OPTIONS", "CRT FILTER AND FONT COLOURS", "/Options"),
             new("9", "SYS", "SANDBOX UTILITIES", "OPEN, START OR RESET A SANDBOX", "/System"),
             new("X", "LOGOFF", "LOG OFF", "END THIS FIDOS SESSION", "/Logoff"),
@@ -61,11 +61,11 @@ public static class Navigation
             new("5", "DAYBOOK", "DAY BOOK", "EVERY JOURNAL IN DATE ORDER", "/Gl/Journals"),
             new("6", "AGED", "AGED DEBTORS", "OUTSTANDING CUSTOMER BALANCES BY AGE", "/ar/aged"),
         ]),
-        new("TRN", "TR000", "ACCOUNTED FOR - TRAINING", "/Menu/TRN", MainMenu,
+        new("TRN", "TR000", "TUTORIAL", "/Menu/TRN", MainMenu,
         [
             new("1", "LEVELS", "TRAINING LEVELS", "MISSIONS THAT TEACH BOOKKEEPING STEP BY STEP", "/Training"),
             new("2", "DRILL", "DEBIT OR CREDIT?", "QUICK-FIRE DOUBLE-ENTRY PRACTICE", "/Training/Drill"),
-            new("3", "TUTOR", "TUTORIAL", "THE THEORY BEHIND THE SCREENS", "/Help"),
+            new("3", "TUTOR", "ACCOUNTING FUNDAMENTALS", "THE THEORY BEHIND THE SCREENS", "/Help"),
         ]),
     ];
 

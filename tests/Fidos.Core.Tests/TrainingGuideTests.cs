@@ -54,4 +54,19 @@ public class TrainingGuideTests
     {
         Assert.Equal(destination, Navigation.Resolve(command, Navigation.MainMenu));
     }
+
+    [Fact]
+    public void GuideMenuOptions_LeadToLessonsAndAccountingFundamentals()
+    {
+        var main = Navigation.FindMenu("MAIN")!;
+        var tutorial = Assert.Single(main.Options, option => option.Key == "5");
+        var fundamentals = Assert.Single(main.Options, option => option.Key == "6");
+
+        Assert.Equal("TUTORIAL", tutorial.Label);
+        Assert.Equal("ACCOUNTING FUNDAMENTALS", fundamentals.Label);
+        Assert.Equal(tutorial.Url, Navigation.Resolve("5", main.Url));
+        Assert.Equal("/Training", Navigation.Resolve("1", tutorial.Url));
+        Assert.Equal("/Help", Navigation.Resolve("6", main.Url));
+        Assert.Equal("/Help", fundamentals.Url);
+    }
 }

@@ -7,14 +7,13 @@
     ViewData["Exit"] = menu.Id == "MAIN" ? "/Logoff" : menu.Parent;
     ViewData["HelpTopic"] = "NAV";
 }
-<p class="cy">SELECT AN OPTION NUMBER OR TRANSACTION CODE ON THE COMMAND LINE, OR CLICK AN OPTION.</p>
+<p class="cy">SELECT AN OPTION NUMBER ON THE COMMAND LINE, OR CLICK AN OPTION.</p>
 <table class="menu">
     <tbody>
     @foreach (var o in menu.Options)
     {
         <tr>
             <td class="key"><a href="@o.Url">@o.Key</a></td>
-            <td class="code">@o.Code</td>
             <td><a href="@o.Url">@o.Label</a></td>
             <td class="desc">@o.Description</td>
         </tr>
@@ -37,5 +36,4 @@
             <p class="dim">LEVELS ARE OPTIONAL. YOU CAN EXPLORE ANY FIDOS SCREEN FREELY AT ANY TIME.</p>
         }
     </div>
-    <p class="dim">TIP: JUMP STRAIGHT TO A SCREEN WITH ITS CODE (E.G. JE, SINV, TB) OR A PATH LIKE =1.3</p>
 }

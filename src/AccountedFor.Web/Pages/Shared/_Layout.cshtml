@@ -45,11 +45,11 @@
         {
             @if (string.Equals(path, "/Menu", StringComparison.OrdinalIgnoreCase) || string.Equals(path, "/Menu/MAIN", StringComparison.OrdinalIgnoreCase))
             {
-                <p class="guide-tip"><strong>Step 2 · Use the command bar</strong><br />This is the main menu. Type <code>LEVELS</code> in COMMAND and press Enter to open your lessons. You can also click a menu option.</p>
+                <p class="guide-tip"><strong>Step 2 · Use the command bar</strong><br />This is the main menu. Type <code>5</code> in COMMAND and press Enter to open Tutorial, or click the menu option.</p>
             }
             else if (string.Equals(path, "/Menu/TRN", StringComparison.OrdinalIgnoreCase))
             {
-                <p class="guide-tip"><strong>Next · Open training</strong><br />Choose 1 TRAINING LEVELS, or type <code>LEVELS</code> in COMMAND and press Enter.</p>
+                <p class="guide-tip"><strong>Next · Open training</strong><br />Type <code>1</code> in COMMAND and press Enter to open TRAINING LEVELS, or click the menu option.</p>
             }
             else if (string.Equals(path?.TrimEnd('/'), "/Training", StringComparison.OrdinalIgnoreCase))
             {
@@ -88,7 +88,7 @@
                 <nav class="guide-nav" aria-label="Workspace navigation">
                     <a href="/Menu">Main menu</a>
                     <a href="/Training">Training levels</a>
-                    <a href="/Help">Bookkeeping tutorial</a>
+                    <a href="/Help">Accounting fundamentals</a>
                 </nav>
             @if (guideLevel is not null)
             {
@@ -127,7 +127,7 @@
             {
                 <p>All lessons complete. <a href="/Training">Review training levels</a> or explore freely.</p>
             }
-            <p>Type <code>HELP</code> in COMMAND for the bookkeeping tutorial. F12 returns to the main menu; F3 exits the current screen. You can also click the PF key labels below the terminal.</p>
+            <p>Type <code>HELP</code> in COMMAND for accounting fundamentals. F12 returns to the main menu; F3 exits the current screen. You can also click the PF key labels below the terminal.</p>
             </details>
         }
     </aside>
@@ -162,7 +162,7 @@
             {
                 <p id="command-step" class="coach-tip">
                     <strong>Pixel · Step 2 of 4</strong>
-                    <span>Type <code>LEVELS</code> in the command bar above, then press Enter to open your training levels.</span>
+                    <span>Type <code>5</code> in the command bar above, then press Enter to open Tutorial. Next, choose 1 for training levels.</span>
                 </p>
             }
         }
