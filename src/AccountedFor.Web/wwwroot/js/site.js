@@ -21,13 +21,23 @@
         || document.querySelector("main input.fld:not([type=hidden]):not([readonly]), main select.fld");
     first?.focus({ preventScroll: true });
 
-    if (command) {
-        document.addEventListener("click", (e) => {
-            if (!e.target.closest("a, button, input, select, textarea, label, summary, [contenteditable]")) {
-                command.focus({ preventScroll: true });
-            }
-        });
-    }
+    // Move between text fields without taking arrow keys away from selects or radio buttons.
+    document.addEventListener("keydown", (e) => {
+        if ((e.key !== "ArrowDown" && e.key !== "ArrowUp") || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || e.isComposing || e.defaultPrevented) {
+            return;
+        }
+        const fields = [...document.querySelectorAll("#terminal input.fld")]
+            .filter((input) => input.type === "text" && !input.matches(":disabled") && !input.readOnly && input.getClientRects().length);
+        const index = fields.indexOf(document.activeElement);
+        if (index < 0) {
+            return;
+        }
+        const next = fields[index + (e.key === "ArrowDown" ? 1 : -1)];
+        if (next) {
+            e.preventDefault();
+            next.focus();
+        }
+    });
 
     const guide = document.querySelector('[data-remember-guide="true"]');
     if (guide) {
