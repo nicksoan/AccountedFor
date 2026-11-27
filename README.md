@@ -45,8 +45,9 @@ Levels are optional. Every screen can be used freely at any time.
 
 ### Learning workspace
 
-The guide beside the terminal explains how to sign on and find the training levels.
-Choose an unlocked lesson to keep its objectives and hints beside you as you work;
+Pixel, the terminal mascot, points out where to sign on and how to enter your first
+command. Open **Pixel · Terminal guide** whenever you want navigation help or lesson
+objectives. Choose an unlocked lesson to see its objectives and hints as you work;
 the guide links to relevant screens and back to the briefing. It retains the selected
 lesson when it is completed, with a link to the next current lesson. Use the main menu
 or training links in the guide, or F12 in the terminal, whenever you need to get back.
@@ -102,8 +103,11 @@ dotnet test
 Many people can use one running instance. Each browser gets its own private set of books
 (a *sandbox*), saved as a JSON file under `App_Data/sandboxes`.
 
-- The sandbox is linked to your browser by a cookie. To continue on another device, copy
-  the sandbox ID from **SANDBOX UTILITIES** (option 9) and enter it on the logon screen.
+- The sandbox is linked to your browser by a cookie. Sign on again in the same browser
+  to reopen your books. To continue on another device, copy the sandbox ID from
+  **SANDBOX UTILITIES** (option 9), sign on there, then open the saved ID in **SANDBOX UTILITIES**.
+- Use **START NEW SANDBOX** in **SANDBOX UTILITIES** for fresh books without erasing the
+  old ones. Keep the old ID if you want to switch back later.
 - Type `RESET` on the sandbox utilities screen to start again with fresh books.
 - The only protection is the unguessable sandbox ID; there are no user accounts or
   passwords. That is fine for a training sandbox, but do not use it for anything real.

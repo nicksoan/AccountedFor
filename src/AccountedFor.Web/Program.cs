@@ -22,10 +22,13 @@ app.UseRouting();
 // One request at a time per sandbox: page handlers and views share the sandbox's in-memory books.
 app.Use(async (context, next) =>
 {
-    var isPage = context.GetEndpoint()?.Metadata.GetMetadata<PageActionDescriptor>() is not null;
-    var gate = isPage
-        ? context.RequestServices.GetRequiredService<SandboxStore>().GateFor(context.Request.Cookies[TerminalPageModel.CookieName])
-        : null;
+    var page = context.GetEndpoint()?.Metadata.GetMetadata<PageActionDescriptor>();
+    var store = page is null ? null : context.RequestServices.GetRequiredService<SandboxStore>();
+    var gate = store?.GateFor(context.Request.Cookies[TerminalPageModel.CookieName]);
+    if (gate is null && page?.ViewEnginePath == "/Index")
+    {
+        gate = store?.GateFor(context.Request.Cookies[TerminalPageModel.RememberedCookieName]);
+    }
     if (gate is null)
     {
         await next(context);

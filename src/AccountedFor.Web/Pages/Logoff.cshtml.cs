@@ -13,6 +13,7 @@ public class LogoffModel(SandboxStore store) : TerminalPageModel(store)
 
     public IActionResult OnPost()
     {
+        SetSandboxCookie(HttpContext, RememberedCookieName, SandboxId);
         Response.Cookies.Delete(CookieName);
         LoggedOff = true;
         ViewData["Company"] = null;

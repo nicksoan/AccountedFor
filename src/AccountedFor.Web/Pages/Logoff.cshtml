@@ -9,15 +9,14 @@
 {
     <h2>SESSION ENDED</h2>
     <p>YOU HAVE BEEN LOGGED OFF FIDOS.</p>
-    <p>YOUR BOOKS ARE SAVED. TO RESUME LATER, LOG ON WITH THIS SANDBOX ID:</p>
-    <p class="ye">@Model.SandboxId</p>
+    <p>YOUR BOOKS ARE SAVED. SIGN ON AGAIN IN THIS BROWSER TO PICK UP WHERE YOU LEFT OFF.</p>
     <div class="actions"><a href="/" class="btn">RETURN TO SIGN ON</a></div>
 }
 else
 {
     <h2>LOG OFF FIDOS?</h2>
     <p>YOUR SANDBOX IS SAVED AUTOMATICALLY AFTER EVERY POSTING.</p>
-    <p>MAKE A NOTE OF YOUR SANDBOX ID IF YOU WANT TO RESUME ON ANOTHER BROWSER:</p>
+    <p>TO CONTINUE IN ANOTHER BROWSER, KEEP THIS ID PRIVATE AND USE IT IN SANDBOX UTILITIES AFTER YOU SIGN ON THERE:</p>
     <p class="ye">@Model.SandboxId</p>
     <form method="post">
         <div class="actions">
