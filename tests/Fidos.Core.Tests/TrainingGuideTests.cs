@@ -46,4 +46,12 @@ public class TrainingGuideTests
         }
         Assert.Null(TrainingGuide.ObjectiveUrl(0, 0));
     }
+
+    [Theory]
+    [InlineData("LEVELS", "/Training")]
+    [InlineData("HELP", "/Help")]
+    public void GuideCommands_OpenTheirAdvertisedDestinations(string command, string destination)
+    {
+        Assert.Equal(destination, Navigation.Resolve(command, Navigation.MainMenu));
+    }
 }

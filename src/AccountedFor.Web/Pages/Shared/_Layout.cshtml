@@ -13,6 +13,8 @@
     var level = company?.CurrentLevel;
     var guideLevel = company is null ? null : ViewData["GuideLevel"] as Level ??
         TrainingGuide.SelectedLevel(company, Context.Request.Cookies[TerminalPageModel.CookieName], Context.Request.Cookies[TrainingGuide.CookieName]);
+    var nextObjective = guideLevel?.Objectives.Select((objective, index) => new { objective, index })
+        .FirstOrDefault(item => !item.objective.IsMet(company!));
     var disableCrt = Context.Request.Cookies[DisplayPreferences.DisableCrtCookie] == "1";
     var fontColor = DisplayPreferences.FontColorOrDefault(Context.Request.Cookies[DisplayPreferences.FontColorCookie]);
 }
@@ -26,34 +28,68 @@
 </head>
 <body>
 <div class="workspace">
-    <details id="guide" class="guide" data-remember-guide="@(company is not null ? "true" : null)">
-        <summary><span class="mascot" aria-hidden="true">›_</span> Pixel · Terminal guide</summary>
-        <aside class="guide-panel" aria-label="Accounted For guide">
-        <p>Hi, I’m Pixel, your FIDOS terminal guide.</p>
+    <aside id="guide" class="guide" aria-label="Accounted For guide">
+        <div class="guide-heading"><span class="mascot" aria-hidden="true">›_</span> Pixel · Terminal guide</div>
         @if (company is null)
         {
-            <p>Your sandbox is a private set of practice books. No password is needed. Once you sign on, I’ll show you how to open your first lesson.</p>
-            <p><a href="/">Go to sign-on</a></p>
+            @if (screenId == "FIDLOGON")
+            {
+                <p class="guide-tip"><strong>Step 1 · Sign on</strong><br />Enter a USERID below. No password is needed; your practice books stay in your own sandbox.</p>
+            }
+            else
+            {
+                <p class="guide-tip"><a href="/">Go to sign-on</a> to open your practice books.</p>
+            }
         }
         else
         {
-            <nav class="guide-nav" aria-label="Workspace navigation">
-                <a href="/Menu">Main menu</a>
-                <a href="/Training">Training levels</a>
-                <a href="/Help">Bookkeeping help</a>
-            </nav>
             @if (string.Equals(path, "/Menu", StringComparison.OrdinalIgnoreCase) || string.Equals(path, "/Menu/MAIN", StringComparison.OrdinalIgnoreCase))
             {
-                <p class="guide-tip"><strong>Try a command:</strong> type <code>LEVELS</code> in the command bar and press Enter to open training levels. You can also type a menu option number or click it.</p>
+                <p class="guide-tip"><strong>Step 2 · Use the command bar</strong><br />This is the main menu. Type <code>LEVELS</code> in COMMAND and press Enter to open your lessons. You can also click a menu option.</p>
             }
             else if (string.Equals(path, "/Menu/TRN", StringComparison.OrdinalIgnoreCase))
             {
-                <p class="guide-tip"><strong>Next:</strong> choose 1 TRAINING LEVELS, then select an unlocked lesson.</p>
+                <p class="guide-tip"><strong>Next · Open training</strong><br />Choose 1 TRAINING LEVELS, or type <code>LEVELS</code> in COMMAND and press Enter.</p>
             }
-            else if (string.Equals(path, "/Training", StringComparison.OrdinalIgnoreCase))
+            else if (string.Equals(path?.TrimEnd('/'), "/Training", StringComparison.OrdinalIgnoreCase))
             {
-                <p class="guide-tip"><strong>Choose a lesson:</strong> select an unlocked mission to read its briefing. Its objectives will remain here while you work.</p>
+                <p class="guide-tip"><strong>Step 3 · Choose a lesson</strong><br />Select an unlocked mission to read its briefing and objectives.</p>
             }
+            else if (path?.StartsWith("/Training/Level/", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                @if (ViewData["GuideLevel"] is null)
+                {
+                    <p class="guide-tip"><strong>Lesson locked</strong><br />Complete earlier lessons first. <a href="/Training">Choose an unlocked lesson</a>.</p>
+                }
+                else if (nextObjective is not null)
+                {
+                    <p class="guide-tip"><strong>Step 4 · Start your mission</strong><br />Read the briefing, then: @nextObjective.objective.Text
+                        @if (TrainingGuide.ObjectiveUrl(guideLevel!.Number, nextObjective.index) is string nextUrl) { <a href="@nextUrl">Open screen</a> }
+                    </p>
+                }
+                else
+                {
+                    <p class="guide-tip"><strong>Mission complete</strong><br /><a href="/Training">Choose another lesson</a> or explore the terminal freely.</p>
+                }
+            }
+            else if (nextObjective is not null)
+            {
+                <p class="guide-tip"><strong>Next · Lesson @guideLevel!.Number</strong><br />@nextObjective.objective.Text
+                    @if (TrainingGuide.ObjectiveUrl(guideLevel.Number, nextObjective.index) is string nextUrl && !string.Equals(path?.TrimEnd('/'), nextUrl, StringComparison.OrdinalIgnoreCase)) { <a href="@nextUrl">Open screen</a> }
+                </p>
+            }
+            else
+            {
+                <p class="guide-tip"><strong>Next · Training</strong><br /><a href="/Training">Choose a lesson</a> or explore the terminal freely.</p>
+            }
+
+            <details data-remember-guide="true">
+                <summary>Lesson progress and navigation</summary>
+                <nav class="guide-nav" aria-label="Workspace navigation">
+                    <a href="/Menu">Main menu</a>
+                    <a href="/Training">Training levels</a>
+                    <a href="/Help">Bookkeeping tutorial</a>
+                </nav>
             @if (guideLevel is not null)
             {
                 <section aria-labelledby="lesson-guide">
@@ -91,10 +127,10 @@
             {
                 <p>All lessons complete. <a href="/Training">Review training levels</a> or explore freely.</p>
             }
-            <p class="guide-tip">Need your bearings? F12 returns to the main menu; F3 exits the current screen. You can also click the PF key labels below the terminal.</p>
+            <p>Type <code>HELP</code> in COMMAND for the bookkeeping tutorial. F12 returns to the main menu; F3 exits the current screen. You can also click the PF key labels below the terminal.</p>
+            </details>
         }
-        </aside>
-    </details>
+    </aside>
 <div class="crt @(disableCrt ? "no-crt" : null) theme-@fontColor">
     <div id="terminal" class="terminal">
         <div class="row head">
@@ -125,7 +161,7 @@
             @if (showCommandStep)
             {
                 <p id="command-step" class="coach-tip">
-                    <strong>Pixel · Step 2 of 2</strong>
+                    <strong>Pixel · Step 2 of 4</strong>
                     <span>Type <code>LEVELS</code> in the command bar above, then press Enter to open your training levels.</span>
                 </p>
             }
