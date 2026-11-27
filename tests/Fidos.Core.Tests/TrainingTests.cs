@@ -65,6 +65,49 @@ public class TrainingTests
     }
 
     [Fact]
+    public void GuidedDrill_ProgressesOneStepAtATimeAndSurvivesReload()
+    {
+        var company = Company.CreateNew();
+        company.CompletedLevels[1] = DateTime.UtcNow;
+        var level = LevelCatalog.Get(2)!;
+
+        Assert.False(company.AnswerGuidedDrill(0, "CREDIT"));
+        Assert.Equal(0, company.Drill.GuidedStepsCompleted);
+        Assert.Throws<BookkeepingException>(() => company.AnswerGuidedDrill(1, "CREDIT"));
+
+        for (var i = 0; i < GuidedDrillCatalog.All.Count; i++)
+        {
+            Assert.False(level.Objectives[i].IsMet(company));
+            Assert.True(company.AnswerGuidedDrill(i, GuidedDrillCatalog.All[i].Answer));
+            Assert.True(level.Objectives[i].IsMet(company));
+            if (i < GuidedDrillCatalog.All.Count - 1)
+            {
+                Assert.Null(company.CheckLevelProgress());
+            }
+            company = JsonSerializer.Deserialize<Company>(JsonSerializer.Serialize(company))!;
+        }
+
+        Assert.Empty(company.Journals);
+        Assert.Equal(0, company.Drill.Correct);
+        Assert.Equal(2, company.CheckLevelProgress()?.Number);
+        Assert.True(company.IsLevelUnlocked(3));
+        Assert.Throws<BookkeepingException>(() => company.AnswerGuidedDrill(GuidedDrillCatalog.All.Count, "DEBIT"));
+    }
+
+    [Fact]
+    public void Level2_RecognizesPreviousDrillAndCompletedProgress()
+    {
+        var company = Company.CreateNew();
+        var level = LevelCatalog.Get(2)!;
+        company.Drill.Correct = 5;
+        Assert.All(level.Objectives, o => Assert.True(o.IsMet(company)));
+
+        company.Drill.Correct = 0;
+        company.CompletedLevels[2] = DateTime.UtcNow;
+        Assert.All(level.Objectives, o => Assert.True(o.IsMet(company)));
+    }
+
+    [Fact]
     public void DrillQuestions_UseSeededAccounts()
     {
         var company = Company.CreateNew();

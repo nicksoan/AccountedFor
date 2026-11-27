@@ -45,6 +45,22 @@ public sealed partial class Company
     [JsonIgnore]
     public DrillQuestion CurrentDrillQuestion => DrillCatalog.Get(Drill.CurrentQuestion);
 
+    public bool AnswerGuidedDrill(int step, string? answer)
+    {
+        if (step != Drill.GuidedStepsCompleted || step < 0 || step >= GuidedDrillCatalog.All.Count)
+        {
+            throw new BookkeepingException("THIS PRACTICE STEP IS NO LONGER CURRENT");
+        }
+
+        var correct = string.Equals(answer?.Trim(), GuidedDrillCatalog.All[step].Answer, StringComparison.OrdinalIgnoreCase);
+        if (correct)
+        {
+            Drill.GuidedStepsCompleted++;
+        }
+
+        return correct;
+    }
+
     /// <summary>Checks an answer to the current drill question and moves on to a different random question.</summary>
     public DrillResult AnswerDrill(string? debitCode, string? creditCode, Random? random = null)
     {
