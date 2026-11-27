@@ -8,6 +8,9 @@
     ViewData["Exit"] = "/Training";
     ViewData["HelpTopic"] = "LEVELS";
     var done = c.IsLevelComplete(l.Number);
+    var activeScenarioIndex = l.Scenarios
+        .Select((scenario, index) => new { scenario, index })
+        .FirstOrDefault(item => !l.Objectives[item.scenario.ObjectiveIndex].IsMet(c))?.index ?? -1;
 }
 <h2>LEVEL @l.Number - @l.Title <span class="dim">(@l.Concept, @l.Points PTS)</span></h2>
 @if (!c.IsLevelUnlocked(l.Number))
@@ -18,19 +21,64 @@ else if (done)
 {
     <div class="box good">MISSION COMPLETE @c.CompletedLevels[l.Number].ToString("yyyy-MM-dd HH:mm") UTC.</div>
 }
-<p class="cy">BRIEFING</p>
-@foreach (var line in l.Briefing)
+@if (l.Scenarios.Count > 0 && c.IsLevelUnlocked(l.Number))
 {
-    <p class="wh">@line</p>
+    <details>
+        <summary class="cy">LESSON BACKGROUND</summary>
+        @foreach (var line in l.Briefing)
+        {
+            <p class="wh">@line</p>
+        }
+    </details>
+    <h2 class="cy">GUIDED SCENARIOS</h2>
+    <ol class="guide-scenarios">
+        @for (var i = 0; i < l.Scenarios.Count; i++)
+        {
+            var scenario = l.Scenarios[i];
+            var complete = l.Objectives[scenario.ObjectiveIndex].IsMet(c);
+            var available = i == activeScenarioIndex;
+            var url = TrainingGuide.ObjectiveUrl(l.Number, scenario.ObjectiveIndex);
+            <li>
+                <h3>SCENARIO @(i + 1) <span class="dim">@(complete ? "COMPLETE" : available ? "YOUR TURN" : "UP NEXT")</span></h3>
+                @if (available || complete)
+                {
+                    <p class="wh">@scenario.Situation</p>
+                    <p>@scenario.Teaching</p>
+                    <ol>
+                        @foreach (var instruction in scenario.Instructions)
+                        {
+                            <li>@instruction</li>
+                        }
+                    </ol>
+                    @if (available && url is not null)
+                    {
+                        <a class="btn" href="@url">OPEN THE SCREEN</a>
+                    }
+                }
+                else if (!complete)
+                {
+                    <p class="dim">Complete the previous scenario to continue.</p>
+                }
+            </li>
+        }
+    </ol>
 }
-<p class="cy">OBJECTIVES</p>
-<table class="grid">
-    @foreach (var o in l.Objectives)
+else
+{
+    <p class="cy">BRIEFING</p>
+    @foreach (var line in l.Briefing)
     {
-        var met = o.IsMet(c);
-        <tr><td>@(met ? "[X]" : "[ ]")</td><td class="@(met ? "good" : "")">@o.Text</td></tr>
+        <p class="wh">@line</p>
     }
-</table>
+    <p class="cy">OBJECTIVES</p>
+    <table class="grid">
+        @foreach (var o in l.Objectives)
+        {
+            var met = o.IsMet(c);
+            <tr><td>@(met ? "[X]" : "[ ]")</td><td class="@(met ? "good" : "")">@o.Text</td></tr>
+        }
+    </table>
+}
 <details>
     <summary class="ye">HINTS (CLICK TO REVEAL)</summary>
     @foreach (var h in l.Hints)

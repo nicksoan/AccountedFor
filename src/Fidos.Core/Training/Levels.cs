@@ -2,6 +2,12 @@ namespace Fidos.Core.Training;
 
 public sealed record Objective(string Text, Func<Company, bool> IsMet);
 
+public sealed record GuidedScenario(
+    string Situation,
+    string Teaching,
+    IReadOnlyList<string> Instructions,
+    int ObjectiveIndex);
+
 /// <summary>An "Accounted For" training level: a briefing, objectives checked against the sandbox, and points.</summary>
 public sealed record Level(
     int Number,
@@ -10,7 +16,10 @@ public sealed record Level(
     IReadOnlyList<string> Briefing,
     IReadOnlyList<Objective> Objectives,
     IReadOnlyList<string> Hints,
-    int Points);
+    int Points)
+{
+    public IReadOnlyList<GuidedScenario> Scenarios { get; init; } = [];
+}
 
 public static class Milestones
 {
@@ -52,7 +61,7 @@ public static class LevelCatalog
             ["DEAD CLIC: DEBITS INCREASE DRAWINGS, EXPENSES AND ASSETS; CREDITS INCREASE LIABILITIES, INCOME AND CAPITAL.",
              "TO DECREASE AN ACCOUNT, USE THE OPPOSITE SIDE. DRAWINGS REDUCE EQUITY, SO THEY INCREASE WITH A DEBIT."],
             100),
-        new(3, "CAPITAL INJECTION", "YOUR FIRST JOURNAL",
+        new Level(3, "CAPITAL INJECTION", "YOUR FIRST JOURNAL",
             [
                 "NORTHSEA NEEDS STARTING MONEY. THE OWNER IS PAYING THEIR OWN SAVINGS INTO THE BUSINESS BANK ACCOUNT.",
                 "A JOURNAL ENTRY RECORDS A TRANSACTION DIRECTLY IN THE GENERAL LEDGER. IT MUST BALANCE: TOTAL DEBITS = TOTAL CREDITS.",
@@ -65,8 +74,19 @@ public static class LevelCatalog
                     j.Lines.Any(l => l.AccountCode == SystemAccounts.Capital && l.Credit > 0))),
             ],
             ["USE JOURNAL ENTRY (CODE JE). LINE 1: 1000 DEBIT 10000. LINE 2: 3000 CREDIT 10000."],
-            100),
-        new(4, "A LEDGER OF YOUR OWN", "CREATING LEDGER ACCOUNTS",
+            100)
+        {
+            Scenarios =
+            [
+                new("The owner puts £10,000 of personal savings into NorthSea's bank account.",
+                    "Bank is an asset, and an increase in an asset is a debit. The owner's capital is equity, and an increase in equity is a credit. The two sides balance because the business receives exactly what the owner invests.",
+                    ["Open Journal Entry. Enter a description such as OWNER INVESTMENT.",
+                     "On line 1 enter account 1000, debit 10000, and no credit.",
+                     "On line 2 enter account 3000, credit 10000, and no debit. Check that both totals are 10000, then post."],
+                    0),
+            ],
+        },
+        new Level(4, "A LEDGER OF YOUR OWN", "CREATING LEDGER ACCOUNTS",
             [
                 "NORTHSEA IS STARTING TO ADVERTISE, BUT THERE IS NO MARKETING ACCOUNT IN THE CHART.",
                 "ACCOUNTANTS CREATE NEW LEDGER ACCOUNTS WHENEVER MANAGEMENT NEEDS TO SEE A COST OR INCOME SEPARATELY.",
@@ -78,8 +98,23 @@ public static class LevelCatalog
                     j.Lines.Any(l => l.Debit > 0 && c.FindAccount(l.AccountCode) is { IsUserDefined: true, Type: AccountType.Expense }))),
             ],
             ["CODE NEWACCT CREATES THE ACCOUNT. THEN PAY FOR SOME ADVERTISING FROM THE BANK WITH A JOURNAL (CODE JE)."],
-            100),
-        new(5, "MAKING A SALE", "THE SALES LEDGER (ACCOUNTS RECEIVABLE)",
+            100)
+        {
+            Scenarios =
+            [
+                new("NorthSea wants to see its advertising costs separately.",
+                    "A separate general-ledger account makes this cost easy to find in reports. Expense accounts use codes from 5000 to 9999, so 6600 is a suitable code for Marketing.",
+                    ["Open Create Ledger Account. Enter code 6600, name MARKETING, and type EXPENSE, then create it."],
+                    0),
+                new("NorthSea pays £250 for its first marketing campaign from the bank.",
+                    "The campaign is an expense as soon as it is used, so debit 6600. Money leaving the bank decreases an asset, so credit 1000. This journal records both effects without changing the balance.",
+                    ["Open Journal Entry and describe the payment as MARKETING CAMPAIGN.",
+                     "Enter line 1 as account 6600, debit 250; enter line 2 as account 1000, credit 250.",
+                     "Post the journal, then inspect the new account from the chart if you want to see its entry."],
+                    1),
+            ],
+        },
+        new Level(5, "MAKING A SALE", "THE SALES LEDGER (ACCOUNTS RECEIVABLE)",
             [
                 "WHEN NORTHSEA SELLS ON CREDIT, THE CUSTOMER OWES MONEY. WE TRACK EACH CUSTOMER IN A SUB-LEDGER: THE SALES LEDGER.",
                 "THE GENERAL LEDGER ONLY HOLDS ONE TOTAL FOR ALL CUSTOMERS - THE RECEIVABLES CONTROL ACCOUNT (1100).",
@@ -91,8 +126,23 @@ public static class LevelCatalog
                 new("RAISE A SALES INVOICE THAT INCLUDES VAT (CODE SINV)", c => c.SalesInvoices.Any(i => i.Vat > 0)),
             ],
             ["AFTER POSTING, FIDOS SHOWS YOU THE JOURNAL IT CREATED. STUDY WHICH ACCOUNTS WERE HIT."],
-            150),
-        new(6, "GETTING PAID", "CUSTOMER RECEIPTS",
+            150)
+        {
+            Scenarios =
+            [
+                new("A new customer, Harbour Books, orders goods from NorthSea on credit.",
+                    "Create a customer first so the invoice is tracked in that customer's sales-ledger account, not just as a general-ledger total. Use 30-day payment terms.",
+                    ["Open New Customer. Enter HARBOUR BOOKS, leave the optional contact blank, enter 30 days, and create the customer."],
+                    0),
+                new("Invoice Harbour Books £100 for goods, plus 20% VAT.",
+                    "The customer owes £120 in total: £100 net sales plus £20 VAT. FIDOS debits the gross £120 to receivables (1100), credits £100 sales (4000), and credits £20 VAT output (2200). VAT is owed to the tax authority, not earned as income.",
+                    ["Open Sales Invoice and select Harbour Books.",
+                     "Enter a reference such as HB-001, VAT rate 20, and a line for account 4000 SALES - GOODS, description GOODS, net amount 100.",
+                     "Post the invoice. Review the journal FIDOS creates and identify the £120 debit and the two credits."],
+                    1),
+            ],
+        },
+        new Level(6, "GETTING PAID", "CUSTOMER RECEIPTS",
             [
                 "YOUR CUSTOMER HAS PAID. THE MONEY ARRIVES IN THE BANK AND THE AMOUNT THEY OWE GOES DOWN.",
                 "RECEIPT: DR 1000 BANK, CR 1100 RECEIVABLES. NOTE THAT NO REVENUE IS RECORDED - THAT HAPPENED WHEN YOU INVOICED.",
@@ -103,8 +153,25 @@ public static class LevelCatalog
                 new("FULLY SETTLE A SALES INVOICE", c => c.SalesInvoices.Any(i => i.IsPaid)),
             ],
             ["ENTER THE FULL GROSS AMOUNT OF THE INVOICE, INCLUDING VAT."],
-            150),
-        new(7, "BUYING ON CREDIT", "THE PURCHASE LEDGER (ACCOUNTS PAYABLE)",
+            150)
+        {
+            Scenarios =
+            [
+                new("Harbour Books makes a part-payment against its invoice.",
+                    "The invoice already recorded the sale and VAT. Receiving cash is a different event: debit bank (1000) and credit receivables (1100). Do not record sales revenue a second time.",
+                    ["Open Customer Receipt and select Harbour Books.",
+                     "Enter 40 as a part-payment (or a smaller amount than the outstanding balance), select the invoice under ALLOCATE TO INVOICE, and use bank account 1000.",
+                     "Post the receipt. The invoice should still have an outstanding balance."],
+                    0),
+                new("Check that the customer balance has cleared.",
+                    "A second receipt clears the remaining balance. The customer sub-ledger and 1100 receivables control account are updated together, without recording the sale again.",
+                    ["Open Customer Receipt again and select Harbour Books.",
+                     "Enter the remaining amount shown for the invoice, select that invoice, and use bank account 1000.",
+                     "Post the receipt. The invoice should now be fully settled."],
+                    1),
+            ],
+        },
+        new Level(7, "BUYING ON CREDIT", "THE PURCHASE LEDGER (ACCOUNTS PAYABLE)",
             [
                 "SUPPLIERS SEND NORTHSEA INVOICES. UNTIL WE PAY, WE OWE THEM MONEY: A LIABILITY.",
                 "EACH SUPPLIER IS TRACKED IN THE PURCHASE LEDGER; THE GL HOLDS THE TOTAL IN PAYABLES CONTROL (2000).",
@@ -115,8 +182,23 @@ public static class LevelCatalog
                 new("ENTER A PURCHASE INVOICE (CODE PINV)", c => c.PurchaseInvoices.Count > 0),
             ],
             ["TRY BUYING STOCK (1200 INVENTORY) OR PAYING RENT (6000) ON CREDIT."],
-            150),
-        new(8, "SETTLING UP", "SUPPLIER PAYMENTS",
+            150)
+        {
+            Scenarios =
+            [
+                new("NorthSea receives a bill from North Star Supplies for office supplies bought on credit.",
+                    "The purchase ledger keeps the amount owed to this supplier. For a £50 purchase plus £10 reclaimable VAT, debit the expense 6300 by £50 and VAT input 1300 by £10; FIDOS credits payables 2000 by the £60 gross total.",
+                    ["Open New Supplier. Enter NORTH STAR SUPPLIES, leave the optional contact blank, enter 30-day terms, and create the supplier."],
+                    0),
+                new("Enter the supplier's £50 office-supplies invoice plus 20% VAT.",
+                    "Unlike a manual journal, the purchase-invoice screen calculates the VAT and posts to the supplier's sub-ledger and the 2000 control account together. The supplier is owed £60 in total.",
+                    ["Open Purchase Invoice and select North Star Supplies.",
+                     "Enter supplier reference NS-001, VAT rate 20, and a line for account 6300 OFFICE SUPPLIES, description OFFICE SUPPLIES, net amount 50.",
+                     "Post the invoice and inspect the resulting journal: expense debit £50, VAT input debit £10, and payables credit £60."],
+                    1),
+            ],
+        },
+        new Level(8, "SETTLING UP", "SUPPLIER PAYMENTS",
             [
                 "TIME TO PAY THE SUPPLIER. THE LIABILITY GOES DOWN AND SO DOES THE BANK BALANCE.",
                 "PAYMENT: DR 2000 PAYABLES, CR 1000 BANK. AGAIN - NO EXPENSE HERE, IT WAS RECORDED WITH THE INVOICE.",
@@ -126,7 +208,24 @@ public static class LevelCatalog
                 new("FULLY SETTLE A PURCHASE INVOICE", c => c.PurchaseInvoices.Any(i => i.IsPaid)),
             ],
             ["CHECK THE SUPPLIER STATEMENT (CODE SUPP, THEN SELECT THE SUPPLIER) TO SEE WHAT IS OWED."],
-            150),
+            150)
+        {
+            Scenarios =
+            [
+                new("NorthSea makes a part-payment to North Star Supplies.",
+                    "Paying a bill reduces both the liability and the bank asset: debit payables (2000) and credit bank (1000). The office-supplies expense and reclaimable VAT were already recorded when the invoice arrived.",
+                    ["Open Supplier Payment and select North Star Supplies.",
+                     "Enter 20 as a part-payment (or a smaller amount than the outstanding balance), select the invoice under ALLOCATE TO INVOICE, and use bank account 1000.",
+                     "Post the payment. The invoice should still have an outstanding balance."],
+                    0),
+                new("Verify that the supplier balance is clear.",
+                    "The payment allocation updates the supplier's sub-ledger and the 2000 payables control account together. Check the supplier statement to confirm nothing remains owed for this invoice.",
+                    ["Open Supplier Payment again and select North Star Supplies.",
+                     "Enter the remaining amount shown for the invoice, select that invoice, and use bank account 1000.",
+                     "Post the payment, then open the supplier statement and confirm the invoice is fully settled."],
+                    1),
+            ],
+        },
         new(9, "PROVE IT", "TRIAL BALANCE AND CONTROL ACCOUNTS",
             [
                 "BECAUSE EVERY DEBIT HAS A MATCHING CREDIT, THE SUM OF ALL DEBIT BALANCES ALWAYS EQUALS THE SUM OF ALL CREDIT BALANCES.",
