@@ -31,6 +31,11 @@
 
     const guide = document.querySelector('[data-remember-guide="true"]');
     if (guide) {
+        document.addEventListener("click", (e) => {
+            if (guide.open && !guide.contains(e.target)) {
+                guide.open = false;
+            }
+        });
         try {
             guide.open = sessionStorage.getItem("fidos.guide-open") === "1";
             guide.addEventListener("toggle", () => sessionStorage.setItem("fidos.guide-open", guide.open ? "1" : "0"));
