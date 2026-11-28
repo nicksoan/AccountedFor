@@ -71,6 +71,54 @@ else
         <p class="wh">@line</p>
     }
 }
+@if (l.Number == 2)
+{
+    var sale = PracticeCatalog.All[1];
+    <div class="actions">
+        <button type="button" class="btn" id="cutscene-open" hidden>WATCH THE SALE: A DEAD CLIC STORY</button>
+    </div>
+    <dialog id="sale-cutscene" class="cutscene" aria-labelledby="cutscene-title">
+        <div class="cutscene-header">
+            <h2 id="cutscene-title">DEAD CLIC / A SALE IN TWO SIDES</h2>
+            <button type="button" data-cutscene-close aria-label="Close cutscene">X CLOSE</button>
+        </div>
+        <p class="cutscene-kicker">FIDOS TELETEXT · AN EXAMPLE, NOT A POSTING</p>
+        <div class="cutscene-slides">
+            <section class="cutscene-slide" aria-label="Scene 1 of 3">
+                <h3>01 / THE CUSTOMER</h3>
+                <div class="teletext-art shop-art" aria-hidden="true">
+                    <div class="shop-sign">NORTHSEA SHOP</div>
+                    <div class="shop-window"><span class="customer">█<br />▓▓<br />█ █</span><span class="goods">▟██▙<br />GOODS</span><span class="clerk">█<br />▓▓<br />█ █</span></div>
+                    <div class="counter">████████████████████</div>
+                </div>
+                <p>A customer buys goods for £@sale.Amount.ToString("0.00"). Ignore VAT in this example.</p>
+            </section>
+            <section class="cutscene-slide" aria-label="Scene 2 of 3" hidden>
+                <h3>02 / THE PAYMENT</h3>
+                <div class="teletext-art payment-art" aria-hidden="true">
+                    <span>CUSTOMER</span><span class="payment-arrow">£@sale.Amount.ToString("0.00") ▰▰▶</span><span>BANK</span>
+                </div>
+                <p>The customer pays by bank transfer right away. The business has more money in its bank account.</p>
+            </section>
+            <section class="cutscene-slide" aria-label="Scene 3 of 3" hidden>
+                <h3>03 / THE LEDGERS</h3>
+                <div class="cutscene-ledgers">
+                    <div><strong>@sale.DebitCode BANK / ASSET</strong><div class="ledger-columns"><span>DEBIT (LEFT)<br />£@sale.Amount.ToString("0.00")</span><span>CREDIT (RIGHT)<br />—</span></div></div>
+                    <div><strong>@sale.CreditCode SALES / INCOME</strong><div class="ledger-columns"><span>DEBIT (LEFT)<br />—</span><span>CREDIT (RIGHT)<br />£@sale.Amount.ToString("0.00")</span></div></div>
+                </div>
+                <p>Debit Bank: assets increase on the debit side. Credit Sales: income increases on the credit side.</p>
+                <p>Both sides are £@sale.Amount.ToString("0.00"): the entry balances. DEAD = debit increases assets; CLIC = credit increases income.</p>
+            </section>
+        </div>
+        <div class="cutscene-controls">
+            <button type="button" data-cutscene-prev>PREVIOUS</button>
+            <button type="button" data-cutscene-next>NEXT</button>
+            <button type="button" data-cutscene-play>PAUSE</button>
+            <button type="button" data-cutscene-replay>REPLAY</button>
+            <span data-cutscene-status aria-live="polite"></span>
+        </div>
+    </dialog>
+}
 @if (l.Scenarios.Count == 0 || !c.IsLevelUnlocked(l.Number))
 {
     <p class="cy">OBJECTIVES</p>
@@ -112,3 +160,9 @@ else
     @if (l.Number > 1) { <a class="btn" href="/Training/Level/@(l.Number - 1)" data-pf="F7">F7=PREV LEVEL</a> }
     @if (l.Number < LevelCatalog.All.Count) { <a class="btn" href="/Training/Level/@(l.Number + 1)" data-pf="F8">F8=NEXT LEVEL</a> }
 </div>
+@section Scripts {
+    @if (l.Number == 2)
+    {
+        <script src="~/js/sale-cutscene.js" asp-append-version="true"></script>
+    }
+}

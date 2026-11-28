@@ -154,6 +154,19 @@ public class TrainingGuideTests
         }
     }
 
+    [Fact]
+    public void DeadClicCutscene_UsesTheImmediateBankSaleFromPractice()
+    {
+        var sale = PracticeCatalog.All[1];
+
+        Assert.Equal("First sale", sale.Title);
+        Assert.Contains("bank transfer right away", sale.Situation);
+        Assert.Contains("Ignore VAT", sale.Situation);
+        Assert.Equal(SystemAccounts.Bank, sale.DebitCode);
+        Assert.Equal("4000", sale.CreditCode);
+        Assert.Equal(25m, sale.Amount);
+    }
+
     [Theory]
     [InlineData("LEVELS", "/Training")]
     [InlineData("PRACTICE", "/Training/Practice")]

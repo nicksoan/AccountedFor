@@ -326,3 +326,47 @@ table.form td.lbl { color: var(--cyan); white-space: nowrap; }
 .taccount .t-row span:last-child, .taccount div.t-total span:last-child { white-space: nowrap; }
 td.good, span.good { color: var(--green); }
 pre { margin: .3em 0; white-space: pre-wrap; font: inherit; }
+
+.cutscene {
+    width: min(52rem, calc(100vw - 2rem));
+    max-height: calc(100dvh - 2rem);
+    overflow: auto;
+    border: .35rem solid #00d9d9;
+    padding: 1rem;
+    background: #080b48;
+    color: #fff;
+    font: bold 1rem/1.4 var(--font);
+    text-transform: uppercase;
+    box-shadow: .5rem .5rem 0 #000;
+}
+.cutscene::backdrop { background: rgba(0, 0, 0, .85); }
+.cutscene-header, .cutscene-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; }
+.cutscene h2, .cutscene h3 { color: #ffff55; font: inherit; margin: 0; }
+.cutscene button { font: inherit; color: #fff; background: #141b80; border: 2px solid #fff; padding: .3rem .6rem; cursor: pointer; }
+.cutscene button:hover, .cutscene button:focus-visible { color: #080b48; background: #fff; outline: 2px solid #ffff55; }
+.cutscene button[aria-disabled="true"] { opacity: .6; cursor: default; }
+.cutscene-kicker { color: #00ffff; margin: .75rem 0; }
+.cutscene-slide { border: 2px solid #fff; padding: 1rem; }
+.cutscene-slide p { margin: .75rem 0 0; }
+.teletext-art { margin: 1rem 0; background: #151d80; text-align: center; color: #fff; }
+.shop-sign { background: #ffff55; color: #080b48; padding: .25rem; }
+.shop-window { display: flex; align-items: end; justify-content: space-around; min-height: 8rem; padding: 1rem; line-height: 1; }
+.customer { color: #00ffff; animation: customer-arrives 2s steps(4, end) both; }
+.goods { color: #ffff55; }
+.clerk { color: #ff77ff; }
+.counter { color: #00ffff; overflow: hidden; white-space: nowrap; line-height: 1; }
+.payment-art { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-around; gap: 1rem; min-height: 10rem; padding: 1rem; }
+.payment-arrow { color: #ffff55; animation: payment-moves 2s steps(4, end) both; }
+.cutscene-ledgers { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: 1rem; margin-top: 1rem; }
+.cutscene-ledgers > div { border: 2px solid #00ffff; padding: .5rem; }
+.cutscene-ledgers strong { display: block; color: #ffff55; text-align: center; }
+.ledger-columns { display: grid; grid-template-columns: 1fr 1fr; margin-top: .5rem; border-top: 2px solid #fff; }
+.ledger-columns span { padding: .5rem; }
+.ledger-columns span + span { border-left: 2px solid #fff; }
+.cutscene-controls { justify-content: flex-start; margin-top: 1rem; }
+.cutscene-controls span { color: #00ffff; margin-left: auto; }
+@keyframes customer-arrives { from { transform: translateX(-2rem); } to { transform: translateX(0); } }
+@keyframes payment-moves { from { transform: translateX(-1rem); opacity: .3; } to { transform: translateX(1rem); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+    .customer, .payment-arrow { animation: none; }
+}
