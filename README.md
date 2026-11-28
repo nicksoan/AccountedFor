@@ -55,6 +55,13 @@ then inspect the posted journals and see the balances change. You can retry with
 penalty. These example entries never touch your main sandbox books, and your mission
 progress is saved when you leave. The other lessons use your main sandbox books.
 
+Choose **Try the Sale** in the Level 2 briefing for an interactive animated rehearsal:
+follow a £25 customer payment into the bank, choose GL **1000 Bank** and enter the debit,
+then choose **4000 Sales** and enter the matching credit. The story checks each entry
+before continuing and shows your balanced T-accounts. Replay starts a fresh rehearsal;
+it does not post to saved books or count toward the practice missions. Reduced-motion
+preferences are respected, and the story waits for you at every step.
+
 The guide links to relevant screens and back to the briefing. It retains the selected
 lesson when it is completed, with a link to the next current lesson. Use the main menu
 or training links in the guide, or F12 in the terminal, whenever you need to get back.

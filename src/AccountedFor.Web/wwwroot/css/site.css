@@ -328,7 +328,7 @@ td.good, span.good { color: var(--green); }
 pre { margin: .3em 0; white-space: pre-wrap; font: inherit; }
 
 .cutscene {
-    width: min(52rem, calc(100vw - 2rem));
+    width: min(58rem, calc(100vw - 2rem));
     max-height: calc(100dvh - 2rem);
     overflow: auto;
     border: .35rem solid #00d9d9;
@@ -337,36 +337,80 @@ pre { margin: .3em 0; white-space: pre-wrap; font: inherit; }
     color: #fff;
     font: bold 1rem/1.4 var(--font);
     text-transform: uppercase;
-    box-shadow: .5rem .5rem 0 #000;
+    box-shadow: .5rem .5rem 0 #000, 0 0 3rem #00d9d933;
 }
 .cutscene::backdrop { background: rgba(0, 0, 0, .85); }
 .cutscene-header, .cutscene-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; }
 .cutscene h2, .cutscene h3 { color: #ffff55; font: inherit; margin: 0; }
 .cutscene button { font: inherit; color: #fff; background: #141b80; border: 2px solid #fff; padding: .3rem .6rem; cursor: pointer; }
 .cutscene button:hover, .cutscene button:focus-visible { color: #080b48; background: #fff; outline: 2px solid #ffff55; }
-.cutscene button[aria-disabled="true"] { opacity: .6; cursor: default; }
+.cutscene button:disabled { opacity: .45; cursor: default; }
+.cutscene button:disabled:hover { color: #fff; background: #141b80; outline: none; }
 .cutscene-kicker { color: #00ffff; margin: .75rem 0; }
-.cutscene-slide { border: 2px solid #fff; padding: 1rem; }
+.cutscene-progress { display: grid; grid-template-columns: repeat(4, 1fr); gap: .4rem; list-style: none; padding: 0; margin: 1rem 0; font-size: .8rem; }
+.cutscene-progress li { border-top: 3px solid #525ba5; padding-top: .4rem; color: #bec6e6; }
+.cutscene-progress li[aria-current] { border-color: #ffff55; color: #ffff55; }
+.cutscene-progress li.is-complete { border-color: #00ffff; color: #00ffff; }
+.cutscene-slide { border: 2px solid #626eba; padding: 1rem; background: linear-gradient(145deg, #151d64, #080b48); }
+.cutscene-slide.is-active { animation: scene-arrives .4s ease-out both; }
+.cutscene-slide:focus { outline: none; }
 .cutscene-slide p { margin: .75rem 0 0; }
-.teletext-art { margin: 1rem 0; background: #151d80; text-align: center; color: #fff; }
-.shop-sign { background: #ffff55; color: #080b48; padding: .25rem; }
-.shop-window { display: flex; align-items: end; justify-content: space-around; min-height: 8rem; padding: 1rem; line-height: 1; }
-.customer { color: #00ffff; animation: customer-arrives 2s steps(4, end) both; }
+.cutscene-slide strong { color: #ffff55; }
+.teletext-art { margin: 1rem 0; background: #151d80; text-align: center; color: #fff; overflow: hidden; border: 1px solid #626eba; }
+.shop-sign { background: #ffff55; color: #080b48; padding: .5rem; letter-spacing: .15em; border-bottom: .4rem solid #00d9d9; }
+.shop-window { display: flex; align-items: end; justify-content: space-around; min-height: 10rem; padding: 1.5rem; line-height: 1; background: repeating-linear-gradient(90deg, transparent 0, transparent 24%, #ffffff08 25%, transparent 26%); }
+.customer { color: #00ffff; text-shadow: 0 0 .8rem #00ffff77; }
+.is-active .customer { animation: customer-arrives 1.8s cubic-bezier(.22, 1, .36, 1) both; }
 .goods { color: #ffff55; }
-.clerk { color: #ff77ff; }
-.counter { color: #00ffff; overflow: hidden; white-space: nowrap; line-height: 1; }
-.payment-art { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-around; gap: 1rem; min-height: 10rem; padding: 1rem; }
-.payment-arrow { color: #ffff55; animation: payment-moves 2s steps(4, end) both; }
+.is-active .goods { animation: goods-handoff 1.2s 1s ease-in-out both; }
+.clerk { color: #ff77ff; text-shadow: 0 0 .8rem #ff77ff66; }
+.counter { color: #00ffff; overflow: hidden; white-space: nowrap; line-height: 1; background: #00d9d9; box-shadow: 0 -.25rem 1.5rem #00ffff22; }
+.payment-art { display: grid; grid-template-columns: auto minmax(6rem, 1fr) auto; align-items: center; gap: .75rem; min-height: 10rem; padding: 1.5rem .75rem; }
+.payment-art small { font-size: .65rem; color: #a8d9ec; }
+.payment-source, .payment-bank { padding: .75rem .5rem; border: 2px solid #00d9d9; background: #080b48; font-size: .85rem; }
+.payment-bank { border-top: .5rem double #ffff55; }
+.payment-route { position: relative; height: 3rem; }
+.payment-route::before { content: ""; position: absolute; top: 50%; inset-inline: 0; border-top: 2px dashed #00d9d9; }
+.payment-arrow { position: absolute; top: .4rem; left: calc(100% - 5.5rem); width: 5.5rem; padding: .3rem; background: #ffff55; color: #080b48; border: 2px solid #fff; box-shadow: 0 0 1rem #ffff5555; z-index: 1; }
+.is-active .payment-arrow { animation: payment-moves 2.6s cubic-bezier(.45, 0, .2, 1) both; }
+.is-active .payment-bank { animation: bank-receives .7s 2.6s ease-out both; }
+.cutscene-slide form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: .75rem; align-items: center; margin-top: 1.25rem; padding: 1rem; border: 1px solid #00d9d9; background: #05082f; }
+.cutscene input, .cutscene select { width: 100%; min-width: 0; font: inherit; padding: .5rem; border: 2px solid #7d8bc2; background: #080b48; color: #fff; border-radius: 0; }
+.cutscene input:focus, .cutscene select:focus { outline: 2px solid #ffff55; outline-offset: 2px; }
+.cutscene [aria-invalid="true"] { border-color: #ff9393; }
+.cutscene-feedback { grid-column: 1 / -1; color: #ffb3b3; }
+.cutscene-feedback:empty { display: none; }
+.cutscene form button { grid-column: 1 / -1; justify-self: start; }
+.cutscene-receipt { display: grid; gap: .5rem; margin: 1rem auto; padding: 1.25rem; max-width: 28rem; text-align: center; border: 2px dashed #00d9d9; background: #05082f; }
+.cutscene-receipt strong { font-size: 2rem; }
+.is-active .cutscene-receipt { animation: scene-arrives .6s ease-out both; }
 .cutscene-ledgers { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: 1rem; margin-top: 1rem; }
 .cutscene-ledgers > div { border: 2px solid #00ffff; padding: .5rem; }
 .cutscene-ledgers strong { display: block; color: #ffff55; text-align: center; }
 .ledger-columns { display: grid; grid-template-columns: 1fr 1fr; margin-top: .5rem; border-top: 2px solid #fff; }
 .ledger-columns span { padding: .5rem; }
 .ledger-columns span + span { border-left: 2px solid #fff; }
+.ledger-entry { background: #00ffff15; color: #ffff55; }
+.is-active .ledger-entry { animation: ledger-recorded .8s .2s ease-out both; }
+.is-active .cutscene-ledgers > div + div .ledger-entry { animation-delay: .5s; }
+.cutscene output { display: inline-block; font-size: 1.25rem; margin-top: .5rem; }
 .cutscene-controls { justify-content: flex-start; margin-top: 1rem; }
 .cutscene-controls span { color: #00ffff; margin-left: auto; }
-@keyframes customer-arrives { from { transform: translateX(-2rem); } to { transform: translateX(0); } }
-@keyframes payment-moves { from { transform: translateX(-1rem); opacity: .3; } to { transform: translateX(1rem); opacity: 1; } }
+@keyframes scene-arrives { from { transform: translateY(.5rem); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes customer-arrives { from { transform: translateX(-5rem); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes goods-handoff { 0% { transform: translateY(0); } 40% { transform: translateY(-.75rem) rotate(-5deg); } 100% { transform: translateX(-1.5rem); } }
+@keyframes payment-moves { from { left: 0; transform: scale(.85); } to { left: calc(100% - 5.5rem); transform: scale(1); } }
+@keyframes bank-receives { 50% { box-shadow: 0 0 1.5rem #00ffff99; border-color: #ffff55; transform: scale(1.05); } }
+@keyframes ledger-recorded { from { opacity: 0; transform: translateY(-.5rem); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 600px) {
+    .cutscene { padding: .75rem; width: calc(100vw - 1rem); }
+    .cutscene-slide { padding: .75rem; }
+    .cutscene-slide form { grid-template-columns: minmax(0, 1fr); padding: .75rem; }
+    .payment-art { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+    .payment-source, .payment-bank { justify-self: center; min-width: 9rem; }
+    .payment-route { width: 100%; }
+    .cutscene-progress { font-size: .65rem; }
+}
 @media (prefers-reduced-motion: reduce) {
-    .customer, .payment-arrow { animation: none; }
+    .cutscene .is-active, .cutscene .is-active * { animation: none; }
 }
